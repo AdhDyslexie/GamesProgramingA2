@@ -1,3 +1,5 @@
+import java.awt.Image;
+
 public class Inventory {
 
     private int maxSize;
@@ -18,9 +20,27 @@ public class Inventory {
 
     // Temporary methods
     
-    public void addItem() {}
-    public Item getItemAtIndex(int index) { return null; }
-    public void removeItemAtIndex(int index) {}
+    public void addItem(Item new_item) {
+        for (int i = 0; i < maxSize; i++) {
+            if (items[i] == null) {
+                items[i] = new_item;
+            }
+        }
+    }
 
+    public void addItem(Image img, String name, String des, int val, int wei) {
+        for (int i = 0; i < maxSize; i++) {
+            if (items[i] == null) {
+                items[i] = new Item(img, name, des, val, wei);
+            }
+        }
+    }
 
+    public Item getItemAtIndex(int index) {
+        return items[index];
+    }
+
+    public void removeItemAtIndex(int index) {
+        items[index] = null;
+    }
 }
