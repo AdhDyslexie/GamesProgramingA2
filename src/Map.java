@@ -14,15 +14,15 @@ public class Map {
     private TileSet tileSet;
 
     // Map dimensions in pixels
-    private double mapHeight;
-    private double mapWidth;
+    // private double mapHeight;
+    // private double mapWidth;
 
     // Holds all the tiles!
     mapTile[] tileMap;
 
     Map(int[][] tileMapInfo) {
-        mapHeight = 500;
-        mapWidth = 500;
+        // mapHeight = 500;
+        // mapWidth = 500;
 
         tileSet = new TileSet();
 

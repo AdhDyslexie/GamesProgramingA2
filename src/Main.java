@@ -1,5 +1,6 @@
-import java.awt.RenderingHints.Key;
+// import java.awt.RenderingHints.Key;
 import java.awt.event.*;
+import java.awt.Image;
 
 public class Main extends GameEngine{
 
@@ -29,7 +30,8 @@ public class Main extends GameEngine{
 
         player = new Player();
         map = new Map[renderingLayers - 1];
-        npc = new Npc();
+        Image tempimage = loadImage("tileset.png");
+        npc = new Npc(150, 150, 5, 30, 50, tempimage);
 
         map[0] = new Map(new int[][]{{0, 0, 1}, {0, 1, 1}, {0, 2, 1}, {1, 1, 0}, {1, 2, 0}});
         map[1] = new Map(new int[][]{{1, 2, 1}});
@@ -51,15 +53,34 @@ public class Main extends GameEngine{
 
         renderLayers();
         drawFloorItems();
+        drawNpc();
 
-        if (player.menuOpen) {
-            drawInventory();
+        switch (player.menuOpen) {
+            case INVENTORY:
+                drawInventory(70, 150);
+                break;
+
+            case TRADING:
+                drawTradingMenu();
+                drawInventory(70, 300);
+                break;
+
+            case NONE:
+                break;
         }
     }
 
     // ########################################### \\
     // ############# Draw methods ################ \\
     // ########################################### \\
+    public void drawNpc() {
+        saveCurrentTransform();
+
+        translate(npc.xPos(), npc.yPos());
+        drawImage(npc.Sprite(), 0, 0);
+
+        restoreLastTransform();
+    }
 
     public void drawPlayer() {
         // Draw the player at the current position
@@ -78,34 +99,54 @@ public class Main extends GameEngine{
             if (floorItems[i] != null) {
                 translate(floorItems[i].xPos(), floorItems[i].yPos());
                 drawImage(floorItems[i].Image(), 0, 0);
+                restoreLastTransform();
             }
         }
-        // something in here is wrong and causing items to draw differently before and after picking an item up
-
-        restoreLastTransform();
     }
 
-    public void drawInventory() {
+    public void drawInventory(int x, int y) {
         saveCurrentTransform();
 
         // Inventory background
         changeColor(white);
-        translate(70, 150);
+        translate(x, y);
         drawSolidRectangle(0, 0,
                             (map[0].getTileWidth() * player.inventory.maxSize() + player.inventory.renderingBufferSize() * (player.inventory.maxSize() + 1)) * 2,
-                            (map[0].getTileHeight() + player.inventory.renderingBufferSize() * 2) * 2);
+                            (map[0].getTileHeight() + (player.inventory.renderingBufferSize() * 2)) * 2);
 
+        // Draw each inventory item in their correct spot
         for (int i = 0; i < player.inventory.maxSize(); i++) {
-            // buffer(4) * i + 1 gets the correct buffer for x, + buffer for y
+            // If there's an item in this slot, draw it
             if (player.inventory.getItemAtIndex(i) != null) {
-                drawImage(  player.inventory.getItemAtIndex(i).Image(),
-                            ((map[0].getTileWidth() * i) + (player.inventory.renderingBufferSize() * i + player.inventory.renderingBufferSize())) * 2,
-                            (player.inventory.renderingBufferSize()) * 2,
-                            map[0].getTileWidth() * 2,
-                            map[0].getTileHeight() * 2
+                if (player.inventory.getItemAtIndex(i).IsInInventory()) {
+                    drawImage(  player.inventory.getItemAtIndex(i).Image(),
+                            ((map[0].getTileWidth() * i) + (player.inventory.renderingBufferSize() * i + player.inventory.renderingBufferSize())) * player.inventory.SizeMultiplier(),
+                            (player.inventory.renderingBufferSize()) * player.inventory.SizeMultiplier(),
+                            map[0].getTileWidth() * player.inventory.SizeMultiplier(),
+                            map[0].getTileHeight() * player.inventory.SizeMultiplier()
                             );
+                } else {
+                    drawImage(player.inventory.getItemAtIndex(i).Image(),
+                            player.inventory.getItemAtIndex(i).xPos() - x,
+                            player.inventory.getItemAtIndex(i).yPos() - y,
+                            map[0].getTileWidth() * player.inventory.SizeMultiplier(),
+                            map[0].getTileHeight() * player.inventory.SizeMultiplier());
+                }
             }
         }
+
+        restoreLastTransform();
+    }
+
+    public void drawTradingMenu() {
+        saveCurrentTransform();
+
+        changeColor(white);
+        translate(player.TradingMenuX(), player.TradingMenuY());
+        drawSolidRectangle(0, 0, player.TradingMenuWidth(), player.TradingMenuHeight());
+        changeColor(black);
+        translate(player.TradingMenuSlotX(), player.TradingMenuSlotY());
+        drawSolidRectangle(0, 0, player.TradingMenuSlotWidth(), player.TradingMenuSlotHeight());
 
         restoreLastTransform();
     }
@@ -134,31 +175,45 @@ public class Main extends GameEngine{
     // ############# Input Handling ############## \\
     // ########################################### \\
 
+
+    // ------------------------------------------------------------- KEYBOARD ------------------------------------------------------------
     public void keyPressed(KeyEvent e) {
+        // Toggle whether the inventory is open
         if (e.getKeyCode() == KeyEvent.VK_E) {
-            if (player.menuOpen) {
-                player.menuOpen = false;
-            } else {
-                player.menuOpen = true;
+            if (player.menuOpen == Player.MenuOpen.INVENTORY) {
+                player.menuOpen = Player.MenuOpen.NONE;
+            } else if (player.menuOpen == Player.MenuOpen.NONE){
+                player.menuOpen = Player.MenuOpen.INVENTORY;
                 player.IsMoving = false;
             }
         }
-        if (player.menuOpen) {
-            // keyPressedInventory(e);
-        } else {
+
+        // Do world stuff
+        if (player.menuOpen == Player.MenuOpen.NONE) {
             keyPressedWorld(e);
         }
 
+        // Interact with things
         if (e.getKeyCode() == KeyEvent.VK_F) {
-            for (int i = 0; i < floorItems.length; i++) {
-                if (floorItems[i] != null) {
-                    if (distance(floorItems[i].xPos(), floorItems[i].yPos(), player.x, player.y) < 80) {
-                        if (player.inventory.addItem(floorItems[i])) {
-                            floorItems[i] = null;
+            if (player.menuOpen == Player.MenuOpen.NONE) {
+                for (int i = 0; i < floorItems.length; i++) {
+                    if (floorItems[i] != null) {
+                        if (distance(floorItems[i].xPos(), floorItems[i].yPos(), player.x, player.y) < player.reach) {
+                            if (player.inventory.addItem(floorItems[i])) {
+                                floorItems[i] = null;
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
+                for (int i = 0; i < 1; i++) {
+                    if (distance(npc.xPos(), npc.yPos(), player.x, player.y) < player.reach) {
+                        player.menuOpen = Player.MenuOpen.TRADING;
+                    }
+                }
+            } else if (player.menuOpen == Player.MenuOpen.TRADING) {
+                player.menuOpen = Player.MenuOpen.NONE;
+                player.ReturnItemFromTradingMenu();
             }
         }
     }
@@ -200,6 +255,40 @@ public class Main extends GameEngine{
         if (e.getKeyCode() == KeyEvent.VK_D) {
             player.direction = Player.Direction.RIGHT;
             player.IsMoving = true;
+        }
+    }
+
+    // ------------------------------------------------------------- MOUSE --------------------------------------------------------------
+    public void mousePressed(MouseEvent e) {
+        if (player.menuOpen == Player.MenuOpen.TRADING) {
+            // Check whether to check for clicks in the inventory or in the trading menu
+            if (player.TradingMenuSlotTaken() == false) {
+                // check whether the mouse was clicked in an item's area
+                if (e.getY() > 308 && e.getY() < 372) {
+                    // 70 + (buffer * slotwe'reon + buffer) * mult
+                    for (   int xCheck = 70 + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()), i = 0;
+                            i < player.inventory.maxSize();
+                            xCheck += (map[0].getTileWidth() + player.inventory.renderingBufferSize()) * player.inventory.SizeMultiplier(), i++) {
+                        if (e.getX() > xCheck && e.getX() < xCheck + map[0].getTileWidth() * player.inventory.SizeMultiplier()) {
+                            if (player.inventory.getItemAtIndex(i) != null) {
+                                player.inventory.getItemAtIndex(i).setIsInInventory(false);
+                                player.inventory.getItemAtIndex(i).setXPos((int)player.TradingMenuX() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()) + player.TradingMenuSlotX());
+                                player.inventory.getItemAtIndex(i).setYPos((int)player.TradingMenuY() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()) + player.TradingMenuSlotY());
+                                player.setTradingMenuSlotFull(true);
+                                player.setTradingMenuSlotIndex(i);
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                // check for clicks in the trading slot, to put items back in inventory
+                if (e.getX() > player.TradingMenuX() + player.TradingMenuSlotX() && e.getX() < player.TradingMenuX() + player.TradingMenuSlotX() + player.TradingMenuSlotWidth()) {
+                    if (e.getY() > player.TradingMenuY() + player.TradingMenuSlotY() && e.getY() < player.TradingMenuY() + player.TradingMenuSlotY() + player.TradingMenuSlotHeight()) {
+                        player.ReturnItemFromTradingMenu();
+                    }
+                }
+            }
         }
     }
 }
