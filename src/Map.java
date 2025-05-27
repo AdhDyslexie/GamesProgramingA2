@@ -11,11 +11,11 @@ public class Map {
             y = newY;
         }
     }
-    TileSet tileSet;
+    private TileSet tileSet;
 
     // Map dimensions in pixels
-    double mapHeight;
-    double mapWidth;
+    private double mapHeight;
+    private double mapWidth;
 
     // Holds all the tiles!
     mapTile[] tileMap;
@@ -30,5 +30,13 @@ public class Map {
         for (int i = 0; i < tileMapInfo.length; i++) {
             tileMap[i] = new mapTile(tileMapInfo[i][0], tileMapInfo[i][1], tileMapInfo[i][2]);
         }
+    }
+
+    public int getTileWidth() {
+        return tileSet.tileWidth;
+    }
+
+    public int getTileHeight() {
+        return tileSet.tileHeight;
     }
 }

@@ -1,13 +1,14 @@
-import java.awt.Image;
-
 public class Inventory {
 
     private int maxSize;
-    private Item[] items;
+    private int renderingBufferSize;
+    private ItemInstance[] items;
+    private AllItemDefinitions definitions;
 
     Inventory(int size) {
         setMaxSize(size);
-        items = new Item[maxSize];
+        renderingBufferSize = 4;
+        items = new ItemInstance[maxSize];
     }
 
     public int maxSize() {
@@ -18,25 +19,33 @@ public class Inventory {
         maxSize = size;
     }
 
-    // Temporary methods
+    public int renderingBufferSize() {
+        return renderingBufferSize;
+    }
     
-    public void addItem(Item new_item) {
+    // Returns a boolean for whether adding the item was sucessful
+    public boolean addItem(ItemInstance new_item) {
         for (int i = 0; i < maxSize; i++) {
             if (items[i] == null) {
                 items[i] = new_item;
+                return true;
             }
         }
+        return false;
     }
 
-    public void addItem(Image img, String name, String des, int val, int wei) {
+    // Returns a boolean for whether adding the item was sucessful
+    public boolean addItem(int xPos, int yPos, boolean isInInv, int defIndex) {
         for (int i = 0; i < maxSize; i++) {
             if (items[i] == null) {
-                items[i] = new Item(img, name, des, val, wei);
+                items[i] = new ItemInstance(0, 0, true, definitions.getDefinitionAtIndex(defIndex));
+                return true;
             }
         }
+        return false;
     }
 
-    public Item getItemAtIndex(int index) {
+    public ItemInstance getItemAtIndex(int index) {
         return items[index];
     }
 
