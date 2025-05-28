@@ -1,3 +1,5 @@
+import java.awt.Color;
+
 public class TradingMenu {
     // X and Y to draw the menu at
     private int menuX;
@@ -27,6 +29,8 @@ public class TradingMenu {
 
     private int itemInSlotIndex;
 
+    private Color buttonColor;
+
     TradingMenu(int tileWidth, int tileHeight, int buffer, int invSizeMultiplier) {
         menuWidth = 300;
         menuHeight = 120;
@@ -49,6 +53,7 @@ public class TradingMenu {
         
         itemInSlot = false;
         itemInSlotIndex = -1;
+        buttonColor = Color.BLACK;
     }
 
     // -------------------------------------------------------------------- GET INFO --------------------------------------------------------------------
@@ -112,6 +117,10 @@ public class TradingMenu {
         return itemInSlotIndex;
     }
 
+    public Color ButtonColor() {
+        return buttonColor;
+    }
+
     // -------------------------------------------------------------------- CALCULATE WORLD COORDINATES --------------------------------------------------------------------
     // Calculate world coordinate positions for slot
     public int SlotLeftWorldX() {
@@ -154,5 +163,9 @@ public class TradingMenu {
 
     public void setSlotTakenIndex(int newValue) {
         itemInSlotIndex = newValue;
+    }
+
+    public void setButtonColor(Color newColor) {
+        buttonColor = newColor;
     }
 }

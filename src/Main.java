@@ -72,6 +72,9 @@ public class Main extends GameEngine{
             case NONE:
                 break;
         }
+
+        drawText(50, 50, "Money: " + player.money);
+        drawText(50, 80, "Actions remaining: " + player.ActionsRemaining());
     }
 
     // ########################################### \\
@@ -145,17 +148,35 @@ public class Main extends GameEngine{
     public void drawTradingMenu() {
         saveCurrentTransform();
 
+        // Draw menu background
         changeColor(white);
         translate(player.tradingMenu.X(), player.tradingMenu.Y());
         drawSolidRectangle(0, 0, player.tradingMenu.Width(), player.tradingMenu.Height());
+
+        // Draw slot
         changeColor(black);
         translate(player.tradingMenu.SlotX(), player.tradingMenu.SlotY());
         drawSolidRectangle(0, 0, player.tradingMenu.SlotWidth(), player.tradingMenu.SlotHeight());
 
-        // restore last transform, translate to menu, translate to button, draw button at 0,0
+        // Draw button
+        // (restore last transform, translate to button world coords, draw button at 0,0)
         restoreLastTransform();
+        changeColor(player.tradingMenu.ButtonColor());
         translate(player.tradingMenu.ButtonLeftWorldX(), player.tradingMenu.ButtonTopWorldY());
         drawSolidRectangle(0, 0, player.tradingMenu.ButtonWidth(), player.tradingMenu.ButtonHeight());
+
+        // Draw trading button text
+        changeColor(white);
+        translate(30, 32);
+        drawText(0, 0, "Trade", "Arial", 30);
+        
+        // Draw item value text
+        if (player.tradingMenu.SlotTaken()) {
+            changeColor(black);
+            translate(-30, -32);
+            translate(2, 70);
+            drawText(0, 0, player.inventory.getItemAtIndex(player.tradingMenu.SlotTakenItemIndex()).Value() + " Coins", "Arial", 30);
+        }
 
         restoreLastTransform();
     }
@@ -282,8 +303,8 @@ public class Main extends GameEngine{
                         if (e.getX() > xCheck && e.getX() < xCheck + map[0].getTileWidth() * player.inventory.SizeMultiplier()) {
                             if (player.inventory.getItemAtIndex(i) != null) {
                                 player.inventory.getItemAtIndex(i).setIsInInventory(false);
-                                player.inventory.getItemAtIndex(i).setXPos(player.tradingMenu.SlotRightWorldX() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()));
-                                player.inventory.getItemAtIndex(i).setYPos(player.tradingMenu.SlotLeftWorldX() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()));
+                                player.inventory.getItemAtIndex(i).setXPos(player.tradingMenu.SlotLeftWorldX() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()));
+                                player.inventory.getItemAtIndex(i).setYPos(player.tradingMenu.SlotTopWorldY() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()));
                                 player.tradingMenu.setSlotTaken(true);
                                 player.tradingMenu.setSlotTakenIndex(i);
                                 break;
@@ -300,11 +321,21 @@ public class Main extends GameEngine{
                     }
                 } else if (e.getX() > player.tradingMenu.ButtonLeftWorldX() && e.getX() < player.tradingMenu.ButtonRightWorldX()) {
                     if (e.getY() > player.tradingMenu.ButtonTopWorldY() && e.getY() < player.tradingMenu.ButtonBottomWorldY()) {
+                        // Trading something! Increase money, remove item from inventory, decrease actions, set slot to empty
+                        player.tradingMenu.setButtonColor(java.awt.Color.GRAY);
                         player.money += player.inventory.getItemAtIndex(player.tradingMenu.SlotTakenItemIndex()).Value();
+                        player.decrimentActionsRemaining();
                         player.inventory.removeItemAtIndex(player.tradingMenu.SlotTakenItemIndex());
+                        player.tradingMenu.setSlotTaken(false);
                     }
                 }
             }
+        }
+    }
+
+    public void mouseReleased(MouseEvent e) {
+        if (player.tradingMenu.ButtonColor() == java.awt.Color.GRAY) {
+            player.tradingMenu.setButtonColor(black);
         }
     }
 }
