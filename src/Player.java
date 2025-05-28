@@ -30,6 +30,8 @@ public class Player {
     // -1 if not holding any item
     double itemHolding;
 
+    private int actionsRemaining;
+
     Player() {
         x = 0;
         y = 0;
@@ -43,7 +45,7 @@ public class Player {
         inventory = new Inventory(5);
         tradingMenu = new TradingMenu(32, 32, inventory.renderingBufferSize(), inventory.SizeMultiplier());
         renderLayer = 2;
-        reach = 50;
+        reach = 30;
         itemHolding = -1;
     }
 
@@ -127,5 +129,19 @@ public class Player {
 
     public void setTradingMenuSlotIndex(int newValue) {
         tradingMenu.itemInSlotIndex = newValue;
+    }
+
+    // -------------------------------------------------------------------- GET PLAYER INFO --------------------------------------------------------------------
+    public int ActionsRemaining() {
+        return actionsRemaining;
+    }
+
+    // -------------------------------------------------------------------- SET PLAYER INFO --------------------------------------------------------------------
+    public void setActionsRemaining(int newValue) {
+        actionsRemaining = newValue;
+    }
+
+    public void decrimentActionsRemaining() {
+        actionsRemaining--;
     }
 }

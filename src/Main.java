@@ -18,6 +18,7 @@ public class Main extends GameEngine{
     Player player;
     Map map[];
     Npc npc;
+    DayCycle dayCycle;
 
     public void init() {
         mWidth = 500;
@@ -39,6 +40,9 @@ public class Main extends GameEngine{
         floorItems = new ItemInstance[2];
         floorItems[0] = new ItemInstance(20, 30, false, items.getDefinitionAtIndex(0));
         floorItems[1] = new ItemInstance(50, 70, false, items.getDefinitionAtIndex(1));
+        dayCycle = new DayCycle();
+
+        player.setActionsRemaining(dayCycle.ActionsPerDay());
     }
 
     @Override
