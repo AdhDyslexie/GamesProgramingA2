@@ -71,9 +71,12 @@ public class Player {
     }
 
     public void ReturnItemFromTradingMenu() {
-        inventory.getItemAtIndex(TradingMenuSlotIndex()).setIsInInventory(true);
-        setTradingMenuSlotIndex(-1);
-        setTradingMenuSlotFull(false);
+        // Check that there's an item to return
+        if (TradingMenuSlotTaken()) {
+            inventory.getItemAtIndex(TradingMenuSlotIndex()).setIsInInventory(true);
+            setTradingMenuSlotIndex(-1);
+            setTradingMenuSlotFull(false);
+        }
     }
 
     // -------------------------------------------------------------------- GET TRADING MENU INFO --------------------------------------------------------------------
