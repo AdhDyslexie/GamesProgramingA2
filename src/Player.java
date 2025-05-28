@@ -23,7 +23,7 @@ public class Player {
     double reach;
 
     Inventory inventory;
-    private TradingMenu tradingMenu;
+    TradingMenu tradingMenu;
     MenuOpen menuOpen;
     int renderLayer;
 
@@ -74,61 +74,11 @@ public class Player {
 
     public void ReturnItemFromTradingMenu() {
         // Check that there's an item to return
-        if (TradingMenuSlotTaken()) {
-            inventory.getItemAtIndex(TradingMenuSlotIndex()).setIsInInventory(true);
-            setTradingMenuSlotIndex(-1);
-            setTradingMenuSlotFull(false);
+        if (tradingMenu.SlotTaken()) {
+            inventory.getItemAtIndex(tradingMenu.SlotTakenItemIndex()).setIsInInventory(true);
+            tradingMenu.setSlotTakenIndex(-1);
+            tradingMenu.setSlotTaken(false);
         }
-    }
-
-    // -------------------------------------------------------------------- GET TRADING MENU INFO --------------------------------------------------------------------
-    public double TradingMenuX() {
-        return tradingMenu.menuX;
-    }
-
-    public double TradingMenuY() {
-        return tradingMenu.menuY;
-    }
-
-    public int TradingMenuWidth() {
-        return tradingMenu.menuWidth;
-    }
-
-    public int TradingMenuHeight() {
-        return tradingMenu.menuHeight;
-    }
-
-    public int TradingMenuSlotWidth() {
-        return tradingMenu.slotWidth;
-    }
-
-    public int TradingMenuSlotHeight() {
-        return tradingMenu.slotHeight;
-    }
-
-    public int TradingMenuSlotX() {
-        return tradingMenu.slotX;
-    }
-
-    public int TradingMenuSlotY() {
-        return tradingMenu.slotY;
-    }
-
-    public boolean TradingMenuSlotTaken() {
-        return tradingMenu.itemInSlot;
-    }
-
-    public int TradingMenuSlotIndex() {
-        return tradingMenu.itemInSlotIndex;
-    }
-
-    // -------------------------------------------------------------------- SET TRADING MENU INFO --------------------------------------------------------------------
-    public void setTradingMenuSlotFull(boolean newValue) {
-        tradingMenu.itemInSlot = newValue;
-    }
-
-    public void setTradingMenuSlotIndex(int newValue) {
-        tradingMenu.itemInSlotIndex = newValue;
     }
 
     // -------------------------------------------------------------------- GET PLAYER INFO --------------------------------------------------------------------

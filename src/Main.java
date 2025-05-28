@@ -146,11 +146,16 @@ public class Main extends GameEngine{
         saveCurrentTransform();
 
         changeColor(white);
-        translate(player.TradingMenuX(), player.TradingMenuY());
-        drawSolidRectangle(0, 0, player.TradingMenuWidth(), player.TradingMenuHeight());
+        translate(player.tradingMenu.X(), player.tradingMenu.Y());
+        drawSolidRectangle(0, 0, player.tradingMenu.Width(), player.tradingMenu.Height());
         changeColor(black);
-        translate(player.TradingMenuSlotX(), player.TradingMenuSlotY());
-        drawSolidRectangle(0, 0, player.TradingMenuSlotWidth(), player.TradingMenuSlotHeight());
+        translate(player.tradingMenu.SlotX(), player.tradingMenu.SlotY());
+        drawSolidRectangle(0, 0, player.tradingMenu.SlotWidth(), player.tradingMenu.SlotHeight());
+
+        // restore last transform, translate to menu, translate to button, draw button at 0,0
+        restoreLastTransform();
+        translate(player.tradingMenu.ButtonLeftWorldX(), player.tradingMenu.ButtonTopWorldY());
+        drawSolidRectangle(0, 0, player.tradingMenu.ButtonWidth(), player.tradingMenu.ButtonHeight());
 
         restoreLastTransform();
     }
@@ -264,9 +269,10 @@ public class Main extends GameEngine{
 
     // ------------------------------------------------------------- MOUSE --------------------------------------------------------------
     public void mousePressed(MouseEvent e) {
+        // Check for clicks while the trading menu is open - at the trading menu button or slot, or in the inventory
         if (player.menuOpen == Player.MenuOpen.TRADING) {
             // Check whether to check for clicks in the inventory or in the trading menu
-            if (player.TradingMenuSlotTaken() == false) {
+            if (player.tradingMenu.SlotTaken() == false) {
                 // check whether the mouse was clicked in an item's area
                 if (e.getY() > 308 && e.getY() < 372) {
                     // 70 + (buffer * slotwe'reon + buffer) * mult
@@ -276,20 +282,26 @@ public class Main extends GameEngine{
                         if (e.getX() > xCheck && e.getX() < xCheck + map[0].getTileWidth() * player.inventory.SizeMultiplier()) {
                             if (player.inventory.getItemAtIndex(i) != null) {
                                 player.inventory.getItemAtIndex(i).setIsInInventory(false);
-                                player.inventory.getItemAtIndex(i).setXPos((int)player.TradingMenuX() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()) + player.TradingMenuSlotX());
-                                player.inventory.getItemAtIndex(i).setYPos((int)player.TradingMenuY() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()) + player.TradingMenuSlotY());
-                                player.setTradingMenuSlotFull(true);
-                                player.setTradingMenuSlotIndex(i);
+                                player.inventory.getItemAtIndex(i).setXPos(player.tradingMenu.SlotRightWorldX() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()));
+                                player.inventory.getItemAtIndex(i).setYPos(player.tradingMenu.SlotLeftWorldX() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()));
+                                player.tradingMenu.setSlotTaken(true);
+                                player.tradingMenu.setSlotTakenIndex(i);
                                 break;
                             }
                         }
                     }
                 }
-            } else {
+            // If there's something in the slot, we should check for clicks in the slot or trade button
+            } else if (player.tradingMenu.SlotTaken()) {
                 // check for clicks in the trading slot, to put items back in inventory
-                if (e.getX() > player.TradingMenuX() + player.TradingMenuSlotX() && e.getX() < player.TradingMenuX() + player.TradingMenuSlotX() + player.TradingMenuSlotWidth()) {
-                    if (e.getY() > player.TradingMenuY() + player.TradingMenuSlotY() && e.getY() < player.TradingMenuY() + player.TradingMenuSlotY() + player.TradingMenuSlotHeight()) {
+                if (e.getX() > player.tradingMenu.SlotLeftWorldX() && e.getX() < player.tradingMenu.SlotRightWorldX()) {
+                    if (e.getY() > player.tradingMenu.SlotTopWorldY() && e.getY() < player.tradingMenu.SlotBottomWorldY()) {
                         player.ReturnItemFromTradingMenu();
+                    }
+                } else if (e.getX() > player.tradingMenu.ButtonLeftWorldX() && e.getX() < player.tradingMenu.ButtonRightWorldX()) {
+                    if (e.getY() > player.tradingMenu.ButtonTopWorldY() && e.getY() < player.tradingMenu.ButtonBottomWorldY()) {
+                        player.money += player.inventory.getItemAtIndex(player.tradingMenu.SlotTakenItemIndex()).Value();
+                        player.inventory.removeItemAtIndex(player.tradingMenu.SlotTakenItemIndex());
                     }
                 }
             }
