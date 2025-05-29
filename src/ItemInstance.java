@@ -1,6 +1,7 @@
 import java.awt.Image;
 
 public class ItemInstance {
+    // Would take up less memory to store an index to the AllItemDefinitions list rather than just an item -- I'll come back and fix this if I have time.
     private ItemDefinition info;
 
     // Used to tell the program whether to draw the item in an inventory position or at its x and y coords. Useful for if we want to implement drag and drop inventory stuff.

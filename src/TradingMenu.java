@@ -31,6 +31,8 @@ public class TradingMenu {
 
     private Color buttonColor;
 
+    private GameEngine.AudioClip buttonSound;
+
     TradingMenu(int tileWidth, int tileHeight, int buffer, int invSizeMultiplier) {
         menuWidth = 300;
         menuHeight = 120;
@@ -54,6 +56,8 @@ public class TradingMenu {
         itemInSlot = false;
         itemInSlotIndex = -1;
         buttonColor = Color.BLACK;
+
+        buttonSound = GameEngine.loadAudio("ClickSound.wav");
     }
 
     // -------------------------------------------------------------------- GET INFO --------------------------------------------------------------------
@@ -108,6 +112,10 @@ public class TradingMenu {
         return buttonHeight;
     }
 
+    public Color ButtonColor() {
+        return buttonColor;
+    }
+
     // Slot info
     public boolean SlotTaken() {
         return itemInSlot;
@@ -117,9 +125,10 @@ public class TradingMenu {
         return itemInSlotIndex;
     }
 
-    public Color ButtonColor() {
-        return buttonColor;
+    public GameEngine.AudioClip ButtonSound() {
+        return buttonSound;
     }
+
 
     // -------------------------------------------------------------------- CALCULATE WORLD COORDINATES --------------------------------------------------------------------
     // Calculate world coordinate positions for slot
