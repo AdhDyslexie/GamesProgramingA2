@@ -16,11 +16,15 @@ public class Main extends GameEngine{
     AllItemDefinitions items;
 
     Player player;
-    Map map[];
+    Map playerHomeMap[];
+    Map marketMap[];
     Npc npc;
     DayCycle dayCycle;
 
+    AudioClip testClip;
+
     public void init() {
+        testClip = loadAudio("ButtonSound.wav");
         mWidth = 500;
         mHeight = 500;
 
@@ -30,12 +34,13 @@ public class Main extends GameEngine{
         items = new AllItemDefinitions();
 
         player = new Player();
-        map = new Map[renderingLayers - 1];
+        
         Image tempimage = loadImage("tileset.png");
         npc = new Npc(150, 150, 5, 30, 50, tempimage);
 
-        map[0] = new Map(new int[][]{{0, 0, 1}, {0, 1, 1}, {0, 2, 1}, {1, 1, 0}, {1, 2, 0}});
-        map[1] = new Map(new int[][]{{1, 2, 1}});
+        marketMap = new Map[renderingLayers - 1];
+        marketMap[0] = new Map(new int[][]{{0, 0, 1}, {0, 1, 1}, {0, 2, 1}, {1, 1, 0}, {1, 2, 0}});
+        marketMap[1] = new Map(new int[][]{{1, 2, 1}});
 
         floorItems = new ItemInstance[2];
         floorItems[0] = new ItemInstance(20, 30, false, items.getDefinitionAtIndex(0));
@@ -115,8 +120,8 @@ public class Main extends GameEngine{
         changeColor(white);
         translate(x, y);
         drawSolidRectangle(0, 0,
-                            (map[0].getTileWidth() * player.inventory.maxSize() + player.inventory.renderingBufferSize() * (player.inventory.maxSize() + 1)) * 2,
-                            (map[0].getTileHeight() + (player.inventory.renderingBufferSize() * 2)) * 2);
+                            (marketMap[0].getTileWidth() * player.inventory.maxSize() + player.inventory.renderingBufferSize() * (player.inventory.maxSize() + 1)) * 2,
+                            (marketMap[0].getTileHeight() + (player.inventory.renderingBufferSize() * 2)) * 2);
 
         // Draw each inventory item in their correct spot
         for (int i = 0; i < player.inventory.maxSize(); i++) {
@@ -124,17 +129,17 @@ public class Main extends GameEngine{
             if (player.inventory.getItemAtIndex(i) != null) {
                 if (player.inventory.getItemAtIndex(i).IsInInventory()) {
                     drawImage(  player.inventory.getItemAtIndex(i).Image(),
-                            ((map[0].getTileWidth() * i) + (player.inventory.renderingBufferSize() * i + player.inventory.renderingBufferSize())) * player.inventory.SizeMultiplier(),
+                            ((marketMap[0].getTileWidth() * i) + (player.inventory.renderingBufferSize() * i + player.inventory.renderingBufferSize())) * player.inventory.SizeMultiplier(),
                             (player.inventory.renderingBufferSize()) * player.inventory.SizeMultiplier(),
-                            map[0].getTileWidth() * player.inventory.SizeMultiplier(),
-                            map[0].getTileHeight() * player.inventory.SizeMultiplier()
+                            marketMap[0].getTileWidth() * player.inventory.SizeMultiplier(),
+                            marketMap[0].getTileHeight() * player.inventory.SizeMultiplier()
                             );
                 } else {
                     drawImage(player.inventory.getItemAtIndex(i).Image(),
                             player.inventory.getItemAtIndex(i).xPos() - x,
                             player.inventory.getItemAtIndex(i).yPos() - y,
-                            map[0].getTileWidth() * player.inventory.SizeMultiplier(),
-                            map[0].getTileHeight() * player.inventory.SizeMultiplier());
+                            marketMap[0].getTileWidth() * player.inventory.SizeMultiplier(),
+                            marketMap[0].getTileHeight() * player.inventory.SizeMultiplier());
                 }
             }
         }
@@ -165,11 +170,11 @@ public class Main extends GameEngine{
                 drawPlayer();
                 nonTilemapLayersRendered++;
             } else {
-                for (int j = 0; j < map[i - nonTilemapLayersRendered].tileMap.length; j++) {
+                for (int j = 0; j < marketMap[i - nonTilemapLayersRendered].tileMap.length; j++) {
                     // Draw this tile at its tile-based location * the tile width
-                    drawImage(  map[i - nonTilemapLayersRendered].tileMap[j].tile.image,
-                                map[i - nonTilemapLayersRendered].tileMap[j].x * map[i - nonTilemapLayersRendered].getTileWidth(),
-                                map[i - nonTilemapLayersRendered].tileMap[j].y * map[i - nonTilemapLayersRendered].getTileHeight());
+                    drawImage(  marketMap[i - nonTilemapLayersRendered].tileMap[j].tile.image,
+                                marketMap[i - nonTilemapLayersRendered].tileMap[j].x * marketMap[i - nonTilemapLayersRendered].getTileWidth(),
+                                marketMap[i - nonTilemapLayersRendered].tileMap[j].y * marketMap[i - nonTilemapLayersRendered].getTileHeight());
                 }
             }
         }
@@ -272,8 +277,8 @@ public class Main extends GameEngine{
                     // 70 + (buffer * slotwe'reon + buffer) * mult
                     for (   int xCheck = 70 + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()), i = 0;
                             i < player.inventory.maxSize();
-                            xCheck += (map[0].getTileWidth() + player.inventory.renderingBufferSize()) * player.inventory.SizeMultiplier(), i++) {
-                        if (e.getX() > xCheck && e.getX() < xCheck + map[0].getTileWidth() * player.inventory.SizeMultiplier()) {
+                            xCheck += (marketMap[0].getTileWidth() + player.inventory.renderingBufferSize()) * player.inventory.SizeMultiplier(), i++) {
+                        if (e.getX() > xCheck && e.getX() < xCheck + marketMap[0].getTileWidth() * player.inventory.SizeMultiplier()) {
                             if (player.inventory.getItemAtIndex(i) != null) {
                                 player.inventory.getItemAtIndex(i).setIsInInventory(false);
                                 player.inventory.getItemAtIndex(i).setXPos((int)player.TradingMenuX() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()) + player.TradingMenuSlotX());
@@ -290,6 +295,16 @@ public class Main extends GameEngine{
                 if (e.getX() > player.TradingMenuX() + player.TradingMenuSlotX() && e.getX() < player.TradingMenuX() + player.TradingMenuSlotX() + player.TradingMenuSlotWidth()) {
                     if (e.getY() > player.TradingMenuY() + player.TradingMenuSlotY() && e.getY() < player.TradingMenuY() + player.TradingMenuSlotY() + player.TradingMenuSlotHeight()) {
                         player.ReturnItemFromTradingMenu();
+                    }
+                } else if (e.getX() > player.tradingMenu.ButtonLeftWorldX() && e.getX() < player.tradingMenu.ButtonRightWorldX()) {
+                    if (e.getY() > player.tradingMenu.ButtonTopWorldY() && e.getY() < player.tradingMenu.ButtonBottomWorldY()) {
+                        // Trading something! Increase money, remove item from inventory, decrease actions, set slot to empty
+                        player.tradingMenu.setButtonColor(java.awt.Color.GRAY);
+                        player.money += player.inventory.getItemAtIndex(player.tradingMenu.SlotTakenItemIndex()).Value();
+                        player.decrimentActionsRemaining();
+                        player.inventory.removeItemAtIndex(player.tradingMenu.SlotTakenItemIndex());
+                        player.tradingMenu.setSlotTaken(false);
+                        playAudio(testClip);
                     }
                 }
             }
