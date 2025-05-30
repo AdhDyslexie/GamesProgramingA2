@@ -11,6 +11,9 @@ public class Npc {
 
     private Image sprite;
 
+    // This is the item which will give the biggest value multiplier. Items with the same colour or same type will get smaller multipliers.
+    ItemDefinition favourite_item;
+
     Npc() {
         x = 0;
         y = 0;
@@ -20,21 +23,22 @@ public class Npc {
         sprite = null;
     }
 
-    Npc(double xNew, double yNew, double moodNew, int wid, int hei, Image spri) {
+    Npc(double xNew, double yNew, double moodNew, int wid, int hei, Image spri, ItemDefinition fav) {
         x = xNew;
         y = yNew;
         mood = moodNew;
         width = wid;
         height = hei;
         sprite = spri;
+        favourite_item = fav;
     }
 
     // ------------------------------------------------- GET METHODS -----------------------------------------------------
-    public double xPos() {
+    public double X() {
         return x;
     }
 
-    public double yPos() {
+    public double Y() {
         return y;
     }
 

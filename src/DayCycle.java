@@ -10,7 +10,7 @@ public class DayCycle {
     DayCycle() {
         startingDays = 7;
         daysRemaining = startingDays;
-        actionsPerDay = 5;
+        actionsPerDay = 1;
     }
 
     // Constructor taking starting number of days and actions per day
@@ -40,6 +40,7 @@ public class DayCycle {
 
     public int NewDay() {
         daysRemaining--;
+
         // Returns actions per day so we can set the player's actions to it.
         return actionsPerDay;
     }

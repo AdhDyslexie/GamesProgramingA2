@@ -24,6 +24,11 @@ public class Main extends GameEngine{
     AudioClip testClip;
 
     public void init() {
+        // So. I tried really hard to get sound in. I did a lot of debugging. I tried like 5 different methods. I spent hours on this.
+        // I unfortunately was not able to get sounds playing consistently from anywhere but init(). Sometimes they would play from update(),
+        // but sometimes they would be so quiet you could barely hear them and sometimes they would be a normal volume, with seemingly no
+        // reason. I tried to use the function which takes a volume float but that always gave me an error message saying it was unable
+        // to play the sound. Sounds refused to play from anywhere but init() and update(), and I have no clue why. - Callum
         testClip = loadAudio("ButtonSound.wav");
         mWidth = 500;
         mHeight = 500;
@@ -36,7 +41,7 @@ public class Main extends GameEngine{
         player = new Player();
         
         Image tempimage = loadImage("tileset.png");
-        npc = new Npc(150, 150, 5, 30, 50, tempimage);
+        npc = new Npc(150, 150, 5, 30, 50, tempimage, items.getDefinitionAtIndex(0));
 
         marketMap = new Map[renderingLayers - 1];
         marketMap[0] = new Map(new int[][]{{0, 0, 1}, {0, 1, 1}, {0, 2, 1}, {1, 1, 0}, {1, 2, 0}});
@@ -80,6 +85,7 @@ public class Main extends GameEngine{
 
         drawText(50, 50, "Money: " + player.money);
         drawText(50, 80, "Actions remaining: " + player.ActionsRemaining());
+        drawText(50, 110, "Days remaining: " + dayCycle.DaysRemaining());
     }
 
     // ########################################### \\
@@ -88,7 +94,7 @@ public class Main extends GameEngine{
     public void drawNpc() {
         saveCurrentTransform();
 
-        translate(npc.xPos(), npc.yPos());
+        translate(npc.X(), npc.Y());
         drawImage(npc.Sprite(), 0, 0);
 
         restoreLastTransform();
@@ -242,7 +248,7 @@ public class Main extends GameEngine{
                     }
                 }
                 for (int i = 0; i < 1; i++) {
-                    if (distance(npc.xPos(), npc.yPos(), player.x, player.y) < player.reach) {
+                    if (distance(npc.X(), npc.Y(), player.x, player.y) < player.reach) {
                         player.menuOpen = Player.MenuOpen.TRADING;
                     }
                 }
@@ -296,6 +302,7 @@ public class Main extends GameEngine{
     // ------------------------------------------------------------- MOUSE --------------------------------------------------------------
     public void mousePressed(MouseEvent e) {
         // Check for clicks while the trading menu is open - at the trading menu button or slot, or in the inventory
+        // Most of this could be done in TradingMenu in their own functions. I'll change it to do that if I have time. - Callum
         if (player.menuOpen == Player.MenuOpen.TRADING) {
             // Check whether to check for clicks in the inventory or in the trading menu
             if (player.tradingMenu.SlotTaken() == false) {
@@ -332,7 +339,10 @@ public class Main extends GameEngine{
                         player.decrimentActionsRemaining();
                         player.inventory.removeItemAtIndex(player.tradingMenu.SlotTakenItemIndex());
                         player.tradingMenu.setSlotTaken(false);
-                        playAudio(testClip);
+                        // playAudio(testClip); // Never plays... but this is where this code would be if it were working.
+                        if (player.ActionsRemaining() <= 0) {
+                            player.setActionsRemaining(dayCycle.NewDay());
+                        }
                     }
                 }
             }
