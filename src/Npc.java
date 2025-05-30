@@ -5,6 +5,7 @@ public class Npc {
     private double y;
 
     private double mood;
+    private float multiplier;
 
     private int width;
     private int height;
@@ -26,6 +27,7 @@ public class Npc {
     Npc(double xNew, double yNew, double moodNew, int wid, int hei, Image spri, ItemDefinition fav) {
         x = xNew;
         y = yNew;
+        multiplier = 1;
         mood = moodNew;
         width = wid;
         height = hei;
@@ -40,6 +42,10 @@ public class Npc {
 
     public double Y() {
         return y;
+    }
+
+    public float Multiplier() {
+        return multiplier;
     }
 
     public double Mood() {
@@ -65,5 +71,17 @@ public class Npc {
 
     public void setSprite(Image newSprite) {
         sprite = newSprite;
+    }
+
+    public void updateMultiplier(ItemDefinition itemBeingGiven) {
+        multiplier = 1;
+        if (itemBeingGiven != null) {
+            if (itemBeingGiven.type == favourite_item.type) {
+                multiplier += .2f;
+            }
+            if (itemBeingGiven.color == favourite_item.color) {
+                multiplier += .2f;
+            }
+        }
     }
 }

@@ -1,5 +1,7 @@
 // import java.awt.RenderingHints.Key;
 import java.awt.event.*;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.awt.Image;
 
 public class Main extends GameEngine{
@@ -181,12 +183,22 @@ public class Main extends GameEngine{
         translate(30, 32);
         drawText(0, 0, "Trade", "Arial", 30);
         
-        // Draw item value text
+        // Draw item value text, if theres something in the slot
         if (player.tradingMenu.SlotTaken()) {
             changeColor(black);
             translate(-30, -32);
             translate(2, 70);
-            drawText(0, 0, player.inventory.getItemAtIndex(player.tradingMenu.SlotTakenItemIndex()).Value() + " Coins", "Arial", 30);
+            drawText(0, 0, (int)(player.inventory.getItemAtIndex(player.tradingMenu.SlotTakenItemIndex()).Value() * npc.Multiplier()) + " Coins", "Arial", 30);
+        }
+
+        // Draw multiplier text, if not normal (1)
+        if (npc.Multiplier() != 1) {
+            changeColor(orange);
+            translate(0, 22);
+            BigDecimal bd = new BigDecimal(npc.Multiplier());
+            bd = bd.round(new MathContext(3));
+            double rounded = bd.doubleValue();
+            drawText(0, 0, "x " + rounded + "!", "Arial", 20);
         }
 
         restoreLastTransform();
@@ -313,12 +325,14 @@ public class Main extends GameEngine{
                             i < player.inventory.maxSize();
                             xCheck += (marketMap[0].getTileWidth() + player.inventory.renderingBufferSize()) * player.inventory.SizeMultiplier(), i++) {
                         if (e.getX() > xCheck && e.getX() < xCheck + marketMap[0].getTileWidth() * player.inventory.SizeMultiplier()) {
+                            // This item was clicked! put it in the trading menu slot
                             if (player.inventory.getItemAtIndex(i) != null) {
                                 player.inventory.getItemAtIndex(i).setIsInInventory(false);
                                 player.inventory.getItemAtIndex(i).setXPos(player.tradingMenu.SlotLeftWorldX() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()));
                                 player.inventory.getItemAtIndex(i).setYPos(player.tradingMenu.SlotTopWorldY() + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()));
                                 player.tradingMenu.setSlotTaken(true);
                                 player.tradingMenu.setSlotTakenIndex(i);
+                                npc.updateMultiplier(player.inventory.getItemAtIndex(i).Info());
                                 break;
                             }
                         }
@@ -329,16 +343,19 @@ public class Main extends GameEngine{
                 // check for clicks in the trading slot, to put items back in inventory
                 if (e.getX() > player.tradingMenu.SlotLeftWorldX() && e.getX() < player.tradingMenu.SlotRightWorldX()) {
                     if (e.getY() > player.tradingMenu.SlotTopWorldY() && e.getY() < player.tradingMenu.SlotBottomWorldY()) {
+                        // Something is in the slot! return it
                         player.ReturnItemFromTradingMenu();
+                        npc.updateMultiplier(null);
                     }
                 } else if (e.getX() > player.tradingMenu.ButtonLeftWorldX() && e.getX() < player.tradingMenu.ButtonRightWorldX()) {
                     if (e.getY() > player.tradingMenu.ButtonTopWorldY() && e.getY() < player.tradingMenu.ButtonBottomWorldY()) {
                         // Trading something! Increase money, remove item from inventory, decrease actions, set slot to empty
                         player.tradingMenu.setButtonColor(java.awt.Color.GRAY);
-                        player.money += player.inventory.getItemAtIndex(player.tradingMenu.SlotTakenItemIndex()).Value();
+                        player.money += player.inventory.getItemAtIndex(player.tradingMenu.SlotTakenItemIndex()).Value() * npc.Multiplier();
                         player.decrimentActionsRemaining();
                         player.inventory.removeItemAtIndex(player.tradingMenu.SlotTakenItemIndex());
                         player.tradingMenu.setSlotTaken(false);
+                        npc.updateMultiplier(null);
                         // playAudio(testClip); // Never plays... but this is where this code would be if it were working.
                         if (player.ActionsRemaining() <= 0) {
                             player.setActionsRemaining(dayCycle.NewDay());

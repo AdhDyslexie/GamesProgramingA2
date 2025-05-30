@@ -19,6 +19,9 @@ public class ItemInstance {
     }
 
     // --------------------------------------- GET METHODS ---------------------------------------------
+    public ItemDefinition Info() {
+        return info;
+    }
 
     public Image Image() {
         return info.icon;
