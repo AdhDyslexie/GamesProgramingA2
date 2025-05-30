@@ -39,10 +39,6 @@ public class ItemInstance {
         return info.value;
     }
 
-    public int Weight() {
-        return info.weight;
-    }
-
     public boolean IsInInventory() {
         return IsInInventory;
     }

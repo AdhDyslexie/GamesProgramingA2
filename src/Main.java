@@ -134,7 +134,7 @@ public class Main extends GameEngine{
     public void drawFloorItems() {
         saveCurrentTransform();
 
-        for (int i = 0; i < items.numberOfItems(); i++) {
+        for (int i = 0; i < floorItems.length; i++) {
             if (floorItems[i] != null) {
                 translate(floorItems[i].xPos(), floorItems[i].yPos());
                 drawImage(floorItems[i].Image(), 0, 0);
