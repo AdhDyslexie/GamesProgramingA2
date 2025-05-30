@@ -17,13 +17,13 @@ public class TileSet {
     Tile[] tiles;
 
     TileSet() {
-        tileSetImage = GameEngine.loadImage("tileset.png");
+        tileSetImage = GameEngine.loadImage("tilesetv2.png");
 
         tileWidth = 32;
         tileHeight = 32;
 
-        rowsInTileSet = 1;
-        columnsInTileSet = 2;
+        rowsInTileSet = 4;
+        columnsInTileSet = 8;
         numTiles = rowsInTileSet * columnsInTileSet;
         tiles = new Tile[numTiles];
         int x;

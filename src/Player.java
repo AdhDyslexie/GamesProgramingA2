@@ -33,8 +33,8 @@ public class Player {
     private int actionsRemaining;
 
     Player() {
-        x = 0;
-        y = 0;
+        x = 100;
+        y = 200;
         width = 30;
         height = 50;
         speed = 5;
@@ -44,7 +44,7 @@ public class Player {
         menuOpen = MenuOpen.NONE;
         inventory = new Inventory(5);
         tradingMenu = new TradingMenu(32, 32, inventory.renderingBufferSize(), inventory.SizeMultiplier());
-        renderLayer = 2;
+        renderLayer = 4;
         reach = 30;
         itemHolding = -1;
     }
