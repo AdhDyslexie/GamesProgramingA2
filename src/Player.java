@@ -16,7 +16,7 @@ public class Player {
     double y;
     double width;
     double height;
-    double speed;
+    private double speed;
     Boolean IsMoving;
     int money;
     Direction direction;
@@ -26,6 +26,8 @@ public class Player {
     TradingMenu tradingMenu;
     MenuOpen menuOpen;
     int renderLayer;
+
+    CircleCollider collider;
 
     // -1 if not holding any item
     double itemHolding;
@@ -47,6 +49,8 @@ public class Player {
         renderLayer = 4;
         reach = 30;
         itemHolding = -1;
+
+        collider = new CircleCollider((int)x, (int)(y - width / 2), (int)width / 2);
     }
 
     // Called in Main's update function every frame.
@@ -55,6 +59,7 @@ public class Player {
             switch (direction) {
                 case UP:
                     y = y - speed;
+                    collider.setY((int)(y - width / 2));
                     break;
                 
                 case DOWN:
