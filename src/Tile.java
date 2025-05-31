@@ -21,7 +21,12 @@ public class Tile {
     public int Height() {
         return height;
     }
+
     public int Width() {
         return width;
+    }
+
+    public Image Image() {
+        return image;
     }
 }

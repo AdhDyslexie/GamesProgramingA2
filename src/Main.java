@@ -135,47 +135,20 @@ public class Main extends GameEngine{
     }
 
     public void drawPlayer() {
-        // Draw the player at the current position
-        switch (player.direction) {
-            case LEFT:
-                // Draw left idle/animation!
-                changeColor(green);
-                break;
-
-            case RIGHT:
-                // Draw right idle/animation!
-                changeColor(blue);
-                break;
-
-            case UP:
-                // Draw up idle/animation!
-                changeColor(red);
-                break;
-
-            case DOWN:
-                // Draw down idle/animation!
-                changeColor(orange);
-                break;
-        }
-        
         saveCurrentTransform();
         translate(player.x - player.width / 2, player.y - player.height);
         
-        if (player.IsMoving) {
-            drawRectangle(0, 0, player.width, player.height, 5);
-        } else {
-            drawRectangle(0, 0, player.width, player.height);
-        }
-        
-        restoreLastTransform();
+        drawImage(player.animate().Image(),0,0,player.width,player.height);
 
-        // Draw collider -- for debugging purposes
-        translate(player.collider.X(), player.collider.Y());
-        drawCircle(0, 0, player.collider.Radius());
+        // Draw player's collider -- for debugging purposes
+        // restoreLastTransform();
+        // translate(player.collider.X(), player.collider.Y());
+        // drawCircle(0, 0, player.collider.Radius());
 
-        restoreLastTransform();
-        translate(map.rightHouseCollider.LeftX(), map.rightHouseCollider.TopY());
-        drawRectangle(0, 0, map.rightHouseCollider.RightX() - map.rightHouseCollider.LeftX(), map.rightHouseCollider.BottomY() - map.rightHouseCollider.TopY());
+        // Draw a box collider -- for debugging purposes
+        // restoreLastTransform();
+        // translate(map.rightHouseCollider.LeftX(), map.rightHouseCollider.TopY());
+        // drawRectangle(0, 0, map.rightHouseCollider.RightX() - map.rightHouseCollider.LeftX(), map.rightHouseCollider.BottomY() - map.rightHouseCollider.TopY());
 
         restoreLastTransform();
     }
