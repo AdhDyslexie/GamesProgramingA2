@@ -17,7 +17,7 @@ public class Map {
         // 0 - Background
         // 1 - Floor tiles
         // 2 - Midground
-        // 3 - Player
+        // 3 - Player (4 in Player)
 
         marketMap = new TileMap[marketRenderingLayers - 1];
 

@@ -127,7 +127,12 @@ public class Main extends GameEngine{
         saveCurrentTransform();
         translate(player.x - player.width / 2, player.y - player.height);
         
-        drawRectangle(0, 0, player.width, player.height);
+        if (player.IsMoving) {
+            drawRectangle(0, 0, player.width, player.height, 5);
+        } else {
+            drawRectangle(0, 0, player.width, player.height);
+        }
+        
         restoreLastTransform();
 
         // Draw collider -- for debugging purposes

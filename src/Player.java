@@ -12,6 +12,9 @@ public class Player {
         NONE
     }
 
+    double oldX;
+    double oldY;
+
     double x;
     double y;
     double width;
@@ -60,9 +63,15 @@ public class Player {
 
     // Called in Main's update function every frame.
     public void update() {
+        oldX = x;
+        oldY = y;
+
+        // If player is moving diagonally, lower the amount their speed in each direction is changed
         if ((up || down) && (left || right)) {
             speed = 3.5;
         }
+
+        // Move player depending on the keys they have pressed
         if (up) {
             y -= speed;
             collider.YMinusEquals(speed);
@@ -79,6 +88,27 @@ public class Player {
             x += speed;
             collider.XPlusEquals(speed);
         }
+
+        if (y > oldY) {
+            direction = Direction.UP;
+        }
+        if (y < oldY) {
+            direction = Direction.DOWN;
+        }
+        if (x > oldX) {
+            direction = Direction.RIGHT;
+        }
+        if (x < oldX) {
+            direction = Direction.LEFT;
+        }
+
+        // If the player has changed location, IsMoving is true. else, IsMoving is false.
+        if (y != oldY || x != oldX) {
+            IsMoving = true;
+        } else {
+            IsMoving = false;
+        }
+
         speed = 5;
     }
 
