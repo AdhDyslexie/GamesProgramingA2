@@ -1,5 +1,3 @@
-import java.awt.Image;
-
 public class Player {
     enum Direction {
         UP,
@@ -44,6 +42,12 @@ public class Player {
 
     private int actionsRemaining;
 
+    // Variables for player's animation
+    TileSet playerAnimation;
+    int animstate;
+    int animframe;
+    int delay;
+
     Player() {
         x = 100;
         y = 300;
@@ -60,8 +64,14 @@ public class Player {
         reach = 30;
         itemHolding = -1;
 
+        // Initialise collider
         collider = new CircleCollider((int)x, (int)(y - width / 2), (int)width / 2);
-        initanimations();
+
+        // Initialise Animation variables
+        playerAnimation = new TileSet("playeranimsheet.png", (int)width, (int)height, 5, 4);
+        animstate = 0;
+        animframe = 0;
+        delay = 0;
     }
 
     // Called in Main's update function every frame.
@@ -143,36 +153,13 @@ public class Player {
         actionsRemaining--;
     }
 
-    Image animsheet;
-    int  rowsInPlayerSheet;
-    int columnsInPlayerSheet;
-    int numframes;
-    Tile[] frames;
-    int animstate = 0;
-    int animframe = 1;
-    int delay = 0;
-
-    public void initanimations() {
-        animsheet = GameEngine.loadImage("playeranimsheet.png");
-        rowsInPlayerSheet = 5;
-        columnsInPlayerSheet = 4;
-        numframes = rowsInPlayerSheet *  columnsInPlayerSheet;
-        int mx;
-        int my;
-        frames = new Tile[numframes];
-        for (int i = 0; i < numframes;i++) {
-            mx = i % columnsInPlayerSheet;
-            my = i / columnsInPlayerSheet;
-            frames[i] = new Tile(GameEngine.subImage(animsheet, (int)(mx * width), (int)(my * height), (int)width, (int)height));
-        }
-    }
+    // -------------------------------------------------------------------- ANIMATION --------------------------------------------------------------------
     public Tile animate() {
         delay++;
         if (delay == 4) {
-            animframe++;
+            animframe = (animframe + 1) % 4;
             delay = 0;
         }
-        if (animframe == 5) {animframe = 1;}
-        return frames[(animstate*4)+animframe-1];
+        return playerAnimation.tiles[(animstate*4)+animframe];
     }
 }

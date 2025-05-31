@@ -34,7 +34,7 @@ public class TileMap {
         // mapHeight = 500;
         // mapWidth = 500;
 
-        tileSet = new TileSet();
+        tileSet = new TileSet("tilesetv2.png", 32, 32, 4, 8);
 
         tileMap = new mapTile[totalNumTiles];
         firstFreeIndex = 0;

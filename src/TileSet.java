@@ -16,14 +16,14 @@ public class TileSet {
 
     Tile[] tiles;
 
-    TileSet() {
-        tileSetImage = GameEngine.loadImage("tilesetv2.png");
+    TileSet(String fileName, int width, int height, int rows, int columns) {
+        tileSetImage = GameEngine.loadImage(fileName);
 
-        tileWidth = 32;
-        tileHeight = 32;
+        tileWidth = width;
+        tileHeight = height;
 
-        rowsInTileSet = 4;
-        columnsInTileSet = 8;
+        rowsInTileSet = rows;
+        columnsInTileSet = columns;
         numTiles = rowsInTileSet * columnsInTileSet;
         tiles = new Tile[numTiles];
         int x;
