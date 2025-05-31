@@ -1,11 +1,11 @@
 public class CircleCollider {
-    private int x;
-    private int y;
+    private double x;
+    private double y;
     private int radius;
 
     CircleCollider(int newX, int newY, int rad) {
         x = newX;
-        x = newX;
+        y = newY;
         radius = rad;
     }
 
@@ -26,12 +26,12 @@ public class CircleCollider {
             && GameEngine.distance(x, y, otherRightX, otherBottomY) > radius) {
             
             // if within bounds of x but are not within bounds of y
-            if ((x > otherLeftX && x < otherRightX) && (y - radius > otherBottomY | y + radius < otherTopY)) {
+            if ((x > otherLeftX && x < otherRightX) && (y - radius > otherBottomY || y + radius < otherTopY)) {
                 return false;
             }
 
             // if within bounds of y but are not within bounds of x
-            if ((y > otherBottomY && y < otherTopY) && (x - radius > otherLeftX | x + radius < otherRightX)) {
+            if ((y > otherBottomY && y < otherTopY) && (x - radius > otherLeftX || x + radius < otherRightX)) {
                 return false;
             }
         }
@@ -40,11 +40,11 @@ public class CircleCollider {
     }
 
     // -------------------------------------------------------------------- GET INFO --------------------------------------------------------------------
-    public int X() {
+    public double X() {
         return x;
     }
 
-    public int Y() {
+    public double Y() {
         return y;
     }
 
@@ -63,5 +63,40 @@ public class CircleCollider {
 
     public void setRadius(int newValue) {
         radius = newValue;
+    }
+
+    // -------------------------------------------------------------------- OPERATOR METHODS --------------------------------------------------------------------
+    // Taking ints
+    public void YMinusEquals(int subtract) {
+        y -= subtract;
+    }
+
+    public void YPlusEquals(int add) {
+        y += add;
+    }
+
+    public void XMinusEquals(int subtract) {
+        x -= subtract;
+    }
+
+    public void XPlusEquals(int add) {
+        x += add;
+    }
+
+    // Taking doubles
+    public void YMinusEquals(double subtract) {
+        y -= subtract;
+    }
+
+    public void YPlusEquals(double add) {
+        y += add;
+    }
+
+    public void XMinusEquals(double subtract) {
+        x -= subtract;
+    }
+
+    public void XPlusEquals(double add) {
+        x += add;
     }
 }

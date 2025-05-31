@@ -9,6 +9,9 @@ public class Map {
     // private int homeRenderingLayers;
     // private TileMap[] homeMap;
 
+    BoxCollider backCollider;
+    BoxCollider rightCollider;
+
     Map () {
         marketRenderingLayers = 4;
         // 0 - Background
@@ -35,6 +38,8 @@ public class Map {
         marketMap[2].addRowToMap(new int[]{4, 31, 15, 12, 6, 22, 22, 22, 7, 23}, new int[]{3, 4, 5, 8, 9, 10, 11, 12, 13, 14}, 5);
         marketMap[2].addRowToMap(new int[]{12, 6, 21, 7, 23, 28, 21, 20, 20, 30}, new int[]{2, 3, 4, 5, 6, 9, 10, 11, 12, 13}, 6);
         marketMap[2].addRowToMap(new int[]{28, 29, 30, 28, 29, 20, 20, 30}, new int[]{3, 4, 5, 9, 10, 11, 12, 13}, 7);
+
+        backCollider = new BoxCollider(0, 500, 214, 224);
     }
 
 

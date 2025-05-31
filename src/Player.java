@@ -22,6 +22,11 @@ public class Player {
     Direction direction;
     double reach;
 
+    boolean left;
+    boolean right;
+    boolean up;
+    boolean down;
+
     Inventory inventory;
     TradingMenu tradingMenu;
     MenuOpen menuOpen;
@@ -36,7 +41,7 @@ public class Player {
 
     Player() {
         x = 100;
-        y = 200;
+        y = 300;
         width = 30;
         height = 50;
         speed = 5;
@@ -55,26 +60,26 @@ public class Player {
 
     // Called in Main's update function every frame.
     public void update() {
-        if (IsMoving) {
-            switch (direction) {
-                case UP:
-                    y = y - speed;
-                    collider.setY((int)(y - width / 2));
-                    break;
-                
-                case DOWN:
-                    y += speed;
-                    break;
-
-                case LEFT:
-                    x = x - speed;
-                    break;
-
-                case RIGHT:
-                    x += speed;
-                    break;
-            }
+        if ((up || down) && (left || right)) {
+            speed = 3.5;
         }
+        if (up) {
+            y -= speed;
+            collider.YMinusEquals(speed);
+        }
+        if (down) {
+            y += speed;
+            collider.YPlusEquals(speed);
+        }
+        if (left) {
+            x -= speed;
+            collider.XMinusEquals(speed);
+        }
+        if (right) {
+            x += speed;
+            collider.XPlusEquals(speed);
+        }
+        speed = 5;
     }
 
     public void ReturnItemFromTradingMenu() {

@@ -53,10 +53,11 @@ public class Main extends GameEngine{
 
     @Override
     public void update(double dt) {
-        player.update();
-        if (player.collider.IsColliding(npc.collider.X(), npc.collider.Y(), npc.collider.Radius())) {
-            System.out.println("Colliding!");
+        if (player.collider.IsColliding(map.backCollider.LeftX(), map.backCollider.RightX(), map.backCollider.TopY(), map.backCollider.BottomY())) {
+            player.up = false;
+            // System.out.println("Colliding with building!");
         }
+        player.update();
     }
 
     @Override
@@ -101,11 +102,42 @@ public class Main extends GameEngine{
 
     public void drawPlayer() {
         // Draw the player at the current position
-        changeColor(red);
+        switch (player.direction) {
+            case LEFT:
+                // Draw left idle/animation!
+                changeColor(green);
+                break;
+
+            case RIGHT:
+                // Draw right idle/animation!
+                changeColor(blue);
+                break;
+
+            case UP:
+                // Draw up idle/animation!
+                changeColor(red);
+                break;
+
+            case DOWN:
+                // Draw down idle/animation!
+                changeColor(orange);
+                break;
+        }
+        
         saveCurrentTransform();
         translate(player.x - player.width / 2, player.y - player.height);
         
         drawRectangle(0, 0, player.width, player.height);
+        restoreLastTransform();
+
+        // Draw collider -- for debugging purposes
+        // translate(player.collider.X(), player.collider.Y());
+        // drawCircle(0, 0, player.collider.Radius());
+
+        restoreLastTransform();
+        translate(map.backCollider.LeftX(), map.backCollider.TopY());
+        drawRectangle(0, 0, map.backCollider.RightX() - map.backCollider.LeftX(), map.backCollider.BottomY() - map.backCollider.TopY());
+
         restoreLastTransform();
     }
 
@@ -269,42 +301,38 @@ public class Main extends GameEngine{
     }
 
     public void keyReleased(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_W && player.direction == Player.Direction.UP) {
-            player.IsMoving = false;
+        if (e.getKeyCode() == KeyEvent.VK_W) {
+            player.up = false;
         }
 
-        if (e.getKeyCode() == KeyEvent.VK_A && player.direction == Player.Direction.LEFT) {
-            player.IsMoving = false;
+        if (e.getKeyCode() == KeyEvent.VK_A) {
+            player.left = false;
         }
 
-        if (e.getKeyCode() == KeyEvent.VK_S && player.direction == Player.Direction.DOWN) {
-            player.IsMoving = false;
+        if (e.getKeyCode() == KeyEvent.VK_S) {
+            player.down = false;
         }
 
-        if (e.getKeyCode() == KeyEvent.VK_D && player.direction == Player.Direction.RIGHT) {
-            player.IsMoving = false;
+        if (e.getKeyCode() == KeyEvent.VK_D) {
+            player.right = false;
         }
     }
 
     public void keyPressedWorld(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_W) {
-            player.direction = Player.Direction.UP;
-            player.IsMoving = true;
+            player.up = true;
         }
 
         if (e.getKeyCode() == KeyEvent.VK_A) {
-            player.direction = Player.Direction.LEFT;
-            player.IsMoving = true;
+            player.left = true;
         }
 
-        if (e.getKeyCode() == KeyEvent.VK_S) { 
-            player.direction = Player.Direction.DOWN;
-            player.IsMoving = true;
+        if (e.getKeyCode() == KeyEvent.VK_S) {
+            player.down = true;
         }
 
         if (e.getKeyCode() == KeyEvent.VK_D) {
-            player.direction = Player.Direction.RIGHT;
-            player.IsMoving = true;
+            player.right = true;
         }
     }
 
