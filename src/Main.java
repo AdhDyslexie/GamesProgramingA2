@@ -12,14 +12,11 @@ public class Main extends GameEngine{
         createGame(new Main(), framerate);
     }
 
-    int renderingLayers;
-
     ItemInstance floorItems[];
     AllItemDefinitions items;
 
     Player player;
-    Map playerHomeMap[];
-    Map marketMap[];
+    Map map;
     Npc npc;
     DayCycle dayCycle;
 
@@ -42,31 +39,7 @@ public class Main extends GameEngine{
         player = new Player();
         
         Image tempimage = loadImage("tileset.png");
-        npc = new Npc(150, 150, 5, 30, 50, tempimage, items.getDefinitionAtIndex(0));
-
-        renderingLayers = 4;
-        // 0 - Background
-        // 1 - Floor tiles
-        // 2 - Midground
-        // 3 - Player
-        marketMap = new Map[renderingLayers - 1];
-        marketMap[0] = new Map(39);
-        marketMap[0].addRowToMap(new int[]{5, 26, 27}, new int[]{1, 7, 8}, 2);
-        marketMap[0].addRowToMap(new int[]{4, 31, 15, 4, 13, 14, 15, 4}, new int[]{0, 1, 2, 6, 7, 8, 9, 15}, 3);
-        marketMap[0].addRowToMap(new int[]{6, 22, 7, 23, 12, 6, 22, 22, 7, 23, 12, 6}, new int[]{0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 14, 15}, 4);
-        marketMap[0].addRowToMap(new int[]{28, 21, 30, 28, 21, 20, 30, 28}, new int[]{0, 1, 2, 6, 7, 8, 9, 15}, 5);
-        marketMap[0].addRowToMap(new int[]{28, 29, 30, 28, 29, 20, 30, 28}, new int[]{0, 1, 2, 6, 7, 8, 9, 15}, 6);
-
-        marketMap[1] = new Map(144);
-        marketMap[1].addFloorToMap(2, 24, 144, 0, 7);
-
-        marketMap[2] = new Map(38);
-        marketMap[2].addRowToMap(new int[]{5}, new int[]{11}, 2);
-        marketMap[2].addRowToMap(new int[]{4, 31, 15}, new int[]{10, 11, 12}, 3);
-        marketMap[2].addRowToMap(new int[]{5, 4, 13, 20, 14, 15}, new int[]{4, 9, 10, 11, 12, 13}, 4);
-        marketMap[2].addRowToMap(new int[]{4, 31, 15, 12, 6, 22, 22, 22, 7, 23}, new int[]{3, 4, 5, 8, 9, 10, 11, 12, 13, 14}, 5);
-        marketMap[2].addRowToMap(new int[]{12, 6, 21, 7, 23, 28, 21, 20, 20, 30}, new int[]{2, 3, 4, 5, 6, 9, 10, 11, 12, 13}, 6);
-        marketMap[2].addRowToMap(new int[]{28, 29, 30, 28, 29, 20, 20, 30}, new int[]{3, 4, 5, 9, 10, 11, 12, 13}, 7);
+        npc = new Npc(150, 150, 30, 50, tempimage, items.getDefinitionAtIndex(0));
 
         floorItems = new ItemInstance[2];
         floorItems[0] = new ItemInstance(20, 30, false, items.getDefinitionAtIndex(0));
@@ -74,10 +47,50 @@ public class Main extends GameEngine{
         dayCycle = new DayCycle();
 
         player.setActionsRemaining(dayCycle.ActionsPerDay());
+
+        map = new Map();
     }
 
     @Override
     public void update(double dt) {
+        // Check for collisions with the edges of the map
+        if (player.collider.IsColliding(map.topCollider)) {
+            player.up = false;
+        }
+        if (player.collider.IsColliding(map.bottomCollider)) {
+            player.down = false;
+        }
+        if (player.collider.IsColliding(map.leftCollider)) {
+            player.left = false;
+        }
+        if (player.collider.IsColliding(map.rightCollider)) {
+            player.right = false;
+        }
+
+        // Check for collisions with the left house
+        if (player.collider.IsColliding(map.leftHouseCollider)) {
+            // If player is within x bounds of house, they should not be able to move up
+            if (player.x + player.collider.Radius() / 2 > map.leftHouseCollider.LeftX() && player.x - player.collider.Radius() / 2 < map.leftHouseCollider.RightX()) {
+                player.up = false;
+            } else if (player.x - player.collider.Radius() < map.leftHouseCollider.LeftX()) {
+                player.right = false;
+            } else if (player.x + player.collider.Radius() > map.leftHouseCollider.RightX()) {
+                player.left = false;
+            }
+        }
+
+        // Check for collisions with the right house
+        if (player.collider.IsColliding(map.rightHouseCollider)) {
+            // If player is within x bounds of house, they should not be able to move up
+            if (player.x + player.collider.Radius() / 2 > map.rightHouseCollider.LeftX() && player.x - player.collider.Radius() / 2 < map.rightHouseCollider.RightX()) {
+                player.up = false;
+            } else if (player.x - player.collider.Radius() < map.rightHouseCollider.LeftX()) {
+                player.right = false;
+            } else if (player.x + player.collider.Radius() > map.rightHouseCollider.RightX()) {
+                player.left = false;
+            }
+        }
+
         player.update();
     }
 
@@ -115,7 +128,7 @@ public class Main extends GameEngine{
     public void drawNpc() {
         saveCurrentTransform();
 
-        translate(npc.X(), npc.Y());
+        translate(npc.X() - npc.Width() / 2, npc.Y() - npc.Height());
         drawImage(npc.Sprite(), 0, 0);
 
         restoreLastTransform();
@@ -123,11 +136,47 @@ public class Main extends GameEngine{
 
     public void drawPlayer() {
         // Draw the player at the current position
-        changeColor(red);
-        saveCurrentTransform();
-        translate(player.x, player.y);
+        switch (player.direction) {
+            case LEFT:
+                // Draw left idle/animation!
+                changeColor(green);
+                break;
+
+            case RIGHT:
+                // Draw right idle/animation!
+                changeColor(blue);
+                break;
+
+            case UP:
+                // Draw up idle/animation!
+                changeColor(red);
+                break;
+
+            case DOWN:
+                // Draw down idle/animation!
+                changeColor(orange);
+                break;
+        }
         
-        drawRectangle(0, 0, player.width, player.height);
+        saveCurrentTransform();
+        translate(player.x - player.width / 2, player.y - player.height);
+        
+        if (player.IsMoving) {
+            drawRectangle(0, 0, player.width, player.height, 5);
+        } else {
+            drawRectangle(0, 0, player.width, player.height);
+        }
+        
+        restoreLastTransform();
+
+        // Draw collider -- for debugging purposes
+        translate(player.collider.X(), player.collider.Y());
+        drawCircle(0, 0, player.collider.Radius());
+
+        restoreLastTransform();
+        translate(map.rightHouseCollider.LeftX(), map.rightHouseCollider.TopY());
+        drawRectangle(0, 0, map.rightHouseCollider.RightX() - map.rightHouseCollider.LeftX(), map.rightHouseCollider.BottomY() - map.rightHouseCollider.TopY());
+
         restoreLastTransform();
     }
 
@@ -150,8 +199,8 @@ public class Main extends GameEngine{
         changeColor(white);
         translate(x, y);
         drawSolidRectangle(0, 0,
-                            (marketMap[0].getTileWidth() * player.inventory.maxSize() + player.inventory.renderingBufferSize() * (player.inventory.maxSize() + 1)) * 2,
-                            (marketMap[0].getTileHeight() + (player.inventory.renderingBufferSize() * 2)) * 2);
+                            (map.MarketMap()[0].TileWidth() * player.inventory.maxSize() + player.inventory.renderingBufferSize() * (player.inventory.maxSize() + 1)) * 2,
+                            (map.MarketMap()[0].TileHeight() + (player.inventory.renderingBufferSize() * 2)) * 2);
 
         // Draw each inventory item in their correct spot
         for (int i = 0; i < player.inventory.maxSize(); i++) {
@@ -159,17 +208,17 @@ public class Main extends GameEngine{
             if (player.inventory.getItemAtIndex(i) != null) {
                 if (player.inventory.getItemAtIndex(i).IsInInventory()) {
                     drawImage(  player.inventory.getItemAtIndex(i).Image(),
-                            ((marketMap[0].getTileWidth() * i) + (player.inventory.renderingBufferSize() * i + player.inventory.renderingBufferSize())) * player.inventory.SizeMultiplier(),
+                            ((map.MarketMap()[0].TileWidth() * i) + (player.inventory.renderingBufferSize() * i + player.inventory.renderingBufferSize())) * player.inventory.SizeMultiplier(),
                             (player.inventory.renderingBufferSize()) * player.inventory.SizeMultiplier(),
-                            marketMap[0].getTileWidth() * player.inventory.SizeMultiplier(),
-                            marketMap[0].getTileHeight() * player.inventory.SizeMultiplier()
+                            map.MarketMap()[0].TileWidth() * player.inventory.SizeMultiplier(),
+                            map.MarketMap()[0].TileHeight() * player.inventory.SizeMultiplier()
                             );
                 } else {
                     drawImage(player.inventory.getItemAtIndex(i).Image(),
                             player.inventory.getItemAtIndex(i).xPos() - x,
                             player.inventory.getItemAtIndex(i).yPos() - y,
-                            marketMap[0].getTileWidth() * player.inventory.SizeMultiplier(),
-                            marketMap[0].getTileHeight() * player.inventory.SizeMultiplier());
+                            map.MarketMap()[0].TileWidth() * player.inventory.SizeMultiplier(),
+                            map.MarketMap()[0].TileHeight() * player.inventory.SizeMultiplier());
                 }
             }
         }
@@ -227,17 +276,17 @@ public class Main extends GameEngine{
         int nonTilemapLayersRendered = 0;
 
         // For each layer
-        for (int i = 0; i < renderingLayers; i++) {
+        for (int i = 0; i < map.MarketRenderLayers(); i++) {
             // For each tile in this layer
             if (i == player.renderLayer - 1) {
                 drawPlayer();
                 nonTilemapLayersRendered++;
             } else {
-                for (int j = 0; j < marketMap[i - nonTilemapLayersRendered].tileMap.length; j++) {
+                for (int j = 0; j < map.MarketMap()[i - nonTilemapLayersRendered].tileMap.length; j++) {
                     // Draw this tile at its tile-based location * the tile width
-                    drawImage(  marketMap[i - nonTilemapLayersRendered].tileMap[j].tile.image,
-                                marketMap[i - nonTilemapLayersRendered].tileMap[j].x * marketMap[i - nonTilemapLayersRendered].getTileWidth(),
-                                marketMap[i - nonTilemapLayersRendered].tileMap[j].y * marketMap[i - nonTilemapLayersRendered].getTileHeight());
+                    drawImage(  map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].tile.image,
+                                map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].x * map.MarketMap()[i - nonTilemapLayersRendered].TileWidth(),
+                                map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].y * map.MarketMap()[i - nonTilemapLayersRendered].TileHeight());
                 }
             }
         }
@@ -291,42 +340,38 @@ public class Main extends GameEngine{
     }
 
     public void keyReleased(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_W && player.direction == Player.Direction.UP) {
-            player.IsMoving = false;
+        if (e.getKeyCode() == KeyEvent.VK_W) {
+            player.up = false;
         }
 
-        if (e.getKeyCode() == KeyEvent.VK_A && player.direction == Player.Direction.LEFT) {
-            player.IsMoving = false;
+        if (e.getKeyCode() == KeyEvent.VK_A) {
+            player.left = false;
         }
 
-        if (e.getKeyCode() == KeyEvent.VK_S && player.direction == Player.Direction.DOWN) {
-            player.IsMoving = false;
+        if (e.getKeyCode() == KeyEvent.VK_S) {
+            player.down = false;
         }
 
-        if (e.getKeyCode() == KeyEvent.VK_D && player.direction == Player.Direction.RIGHT) {
-            player.IsMoving = false;
+        if (e.getKeyCode() == KeyEvent.VK_D) {
+            player.right = false;
         }
     }
 
     public void keyPressedWorld(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_W) {
-            player.direction = Player.Direction.UP;
-            player.IsMoving = true;
+            player.up = true;
         }
 
         if (e.getKeyCode() == KeyEvent.VK_A) {
-            player.direction = Player.Direction.LEFT;
-            player.IsMoving = true;
+            player.left = true;
         }
 
-        if (e.getKeyCode() == KeyEvent.VK_S) { 
-            player.direction = Player.Direction.DOWN;
-            player.IsMoving = true;
+        if (e.getKeyCode() == KeyEvent.VK_S) {
+            player.down = true;
         }
 
         if (e.getKeyCode() == KeyEvent.VK_D) {
-            player.direction = Player.Direction.RIGHT;
-            player.IsMoving = true;
+            player.right = true;
         }
     }
 
@@ -342,8 +387,8 @@ public class Main extends GameEngine{
                     // 70 + (buffer * slotwe'reon + buffer) * mult
                     for (   int xCheck = 70 + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()), i = 0;
                             i < player.inventory.maxSize();
-                            xCheck += (marketMap[0].getTileWidth() + player.inventory.renderingBufferSize()) * player.inventory.SizeMultiplier(), i++) {
-                        if (e.getX() > xCheck && e.getX() < xCheck + marketMap[0].getTileWidth() * player.inventory.SizeMultiplier()) {
+                            xCheck += (map.MarketMap()[0].TileWidth() + player.inventory.renderingBufferSize()) * player.inventory.SizeMultiplier(), i++) {
+                        if (e.getX() > xCheck && e.getX() < xCheck + map.MarketMap()[0].TileWidth() * player.inventory.SizeMultiplier()) {
                             // This item was clicked! put it in the trading menu slot
                             if (player.inventory.getItemAtIndex(i) != null) {
                                 player.inventory.getItemAtIndex(i).setIsInInventory(false);

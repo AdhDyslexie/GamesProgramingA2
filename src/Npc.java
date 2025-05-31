@@ -4,7 +4,6 @@ public class Npc {
     private double x;
     private double y;
 
-    private double mood;
     private float multiplier;
 
     private int width;
@@ -12,27 +11,30 @@ public class Npc {
 
     private Image sprite;
 
+    CircleCollider collider;
+
     // This is the item which will give the biggest value multiplier. Items with the same colour or same type will get smaller multipliers.
     ItemDefinition favourite_item;
 
     Npc() {
         x = 0;
         y = 0;
-        mood = 5;
         width = 30;
         height = 50;
         sprite = null;
+        favourite_item = null;
+        collider = new CircleCollider((int)x, (int)y - width / 2, width / 2);
     }
 
-    Npc(double xNew, double yNew, double moodNew, int wid, int hei, Image spri, ItemDefinition fav) {
+    Npc(double xNew, double yNew, int wid, int hei, Image spri, ItemDefinition fav) {
         x = xNew;
         y = yNew;
         multiplier = 1;
-        mood = moodNew;
         width = wid;
         height = hei;
         sprite = spri;
         favourite_item = fav;
+        collider = new CircleCollider((int)x, (int)y - width / 2, width / 2);
     }
 
     // ------------------------------------------------- GET METHODS -----------------------------------------------------
@@ -48,10 +50,6 @@ public class Npc {
         return multiplier;
     }
 
-    public double Mood() {
-        return mood;
-    }
-
     public int Width() {
         return width;
     }
@@ -65,10 +63,6 @@ public class Npc {
     }
 
     // ------------------------------------------------- SET METHODS -----------------------------------------------------
-    public void setMood(double newMood) {
-        mood = newMood;
-    }
-
     public void setSprite(Image newSprite) {
         sprite = newSprite;
     }

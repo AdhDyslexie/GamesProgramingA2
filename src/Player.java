@@ -12,20 +12,30 @@ public class Player {
         NONE
     }
 
+    double oldX;
+    double oldY;
+
     double x;
     double y;
     double width;
     double height;
-    double speed;
+    private double speed;
     Boolean IsMoving;
     int money;
     Direction direction;
     double reach;
 
+    boolean left;
+    boolean right;
+    boolean up;
+    boolean down;
+
     Inventory inventory;
     TradingMenu tradingMenu;
     MenuOpen menuOpen;
     int renderLayer;
+
+    CircleCollider collider;
 
     // -1 if not holding any item
     double itemHolding;
@@ -34,7 +44,7 @@ public class Player {
 
     Player() {
         x = 100;
-        y = 200;
+        y = 300;
         width = 30;
         height = 50;
         speed = 5;
@@ -47,29 +57,59 @@ public class Player {
         renderLayer = 4;
         reach = 30;
         itemHolding = -1;
+
+        collider = new CircleCollider((int)x, (int)(y - width / 2), (int)width / 2);
     }
 
     // Called in Main's update function every frame.
     public void update() {
-        if (IsMoving) {
-            switch (direction) {
-                case UP:
-                    y = y - speed;
-                    break;
-                
-                case DOWN:
-                    y += speed;
-                    break;
+        oldX = x;
+        oldY = y;
 
-                case LEFT:
-                    x = x - speed;
-                    break;
-
-                case RIGHT:
-                    x += speed;
-                    break;
-            }
+        // If player is moving diagonally, lower the amount their speed in each direction is changed
+        if ((up || down) && (left || right)) {
+            speed = 3.5;
         }
+
+        // Move player depending on the keys they have pressed
+        if (up) {
+            y -= speed;
+            collider.YMinusEquals(speed);
+        }
+        if (down) {
+            y += speed;
+            collider.YPlusEquals(speed);
+        }
+        if (left) {
+            x -= speed;
+            collider.XMinusEquals(speed);
+        }
+        if (right) {
+            x += speed;
+            collider.XPlusEquals(speed);
+        }
+
+        if (y > oldY) {
+            direction = Direction.UP;
+        }
+        if (y < oldY) {
+            direction = Direction.DOWN;
+        }
+        if (x > oldX) {
+            direction = Direction.RIGHT;
+        }
+        if (x < oldX) {
+            direction = Direction.LEFT;
+        }
+
+        // If the player has changed location, IsMoving is true. else, IsMoving is false.
+        if (y != oldY || x != oldX) {
+            IsMoving = true;
+        } else {
+            IsMoving = false;
+        }
+
+        speed = 5;
     }
 
     public void ReturnItemFromTradingMenu() {
