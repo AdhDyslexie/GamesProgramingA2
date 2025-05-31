@@ -24,7 +24,7 @@ public class BoxCollider {
     }
 
     // -------------------------------------------------------------------- CHECK FOR COLLISIONS --------------------------------------------------------------------
-    // Overload for checking for collisions with another box
+    // Overloads for checking for collisions with another box
     public boolean IsColliding(int otherLeftX, int otherRightX, int otherTopY, int otherBottomY) {
         if (   otherLeftX > leftX && otherLeftX < rightX
             || otherRightX > leftX && otherRightX < rightX) {
@@ -36,8 +36,17 @@ public class BoxCollider {
         return false;
     }
 
-    // Overload for checking for collisions with a circle
-    public boolean IsColliding(int otherX, int otherY, int otherRadius) {
+    public boolean IsColliding(BoxCollider box) {
+        return IsColliding(box.LeftX(), box.RightX(), box.TopY(), box.BottomY());
+    }
+
+    // Overloads for checking for collisions with a circle
+    public boolean IsColliding(double otherX, double otherY, int otherRadius) {
+        // If not within any bounds
+        if ((otherX < leftX || otherX > rightX) && (otherY > bottomY || otherY < topY)) {
+            return false;
+        }
+
         // If the circle is not colliding with any of the corners, it may not be colliding
         if (   GameEngine.distance(leftX, topY, otherX, otherX) > otherRadius
             && GameEngine.distance(leftX, bottomY, otherX, otherY) > otherRadius
@@ -50,12 +59,16 @@ public class BoxCollider {
             }
 
             // if within bounds of y but are not within bounds of x
-            if ((otherY > bottomY && otherY < topY) && (otherX - otherRadius > leftX || otherX + otherRadius < rightX)) {
+            if ((otherY < bottomY && otherY > topY) && (otherX - otherRadius > rightX || otherX + otherRadius < leftX)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    public boolean IsColliding(CircleCollider circle) {
+        return IsColliding(circle.X(), circle.Y(), circle.Radius());
     }
 
     // -------------------------------------------------------------------- GET METHODS --------------------------------------------------------------------

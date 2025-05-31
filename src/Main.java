@@ -53,10 +53,44 @@ public class Main extends GameEngine{
 
     @Override
     public void update(double dt) {
-        if (player.collider.IsColliding(map.backCollider.LeftX(), map.backCollider.RightX(), map.backCollider.TopY(), map.backCollider.BottomY())) {
+        // Check for collisions with the edges of the map
+        if (player.collider.IsColliding(map.topCollider)) {
             player.up = false;
-            // System.out.println("Colliding with building!");
         }
+        if (player.collider.IsColliding(map.bottomCollider)) {
+            player.down = false;
+        }
+        if (player.collider.IsColliding(map.leftCollider)) {
+            player.left = false;
+        }
+        if (player.collider.IsColliding(map.rightCollider)) {
+            player.right = false;
+        }
+
+        // Check for collisions with the left house
+        if (player.collider.IsColliding(map.leftHouseCollider)) {
+            // If player is within x bounds of house, they should not be able to move up
+            if (player.x + player.collider.Radius() / 2 > map.leftHouseCollider.LeftX() && player.x - player.collider.Radius() / 2 < map.leftHouseCollider.RightX()) {
+                player.up = false;
+            } else if (player.x - player.collider.Radius() < map.leftHouseCollider.LeftX()) {
+                player.right = false;
+            } else if (player.x + player.collider.Radius() > map.leftHouseCollider.RightX()) {
+                player.left = false;
+            }
+        }
+
+        // Check for collisions with the right house
+        if (player.collider.IsColliding(map.rightHouseCollider)) {
+            // If player is within x bounds of house, they should not be able to move up
+            if (player.x + player.collider.Radius() / 2 > map.rightHouseCollider.LeftX() && player.x - player.collider.Radius() / 2 < map.rightHouseCollider.RightX()) {
+                player.up = false;
+            } else if (player.x - player.collider.Radius() < map.rightHouseCollider.LeftX()) {
+                player.right = false;
+            } else if (player.x + player.collider.Radius() > map.rightHouseCollider.RightX()) {
+                player.left = false;
+            }
+        }
+
         player.update();
     }
 
@@ -136,12 +170,12 @@ public class Main extends GameEngine{
         restoreLastTransform();
 
         // Draw collider -- for debugging purposes
-        // translate(player.collider.X(), player.collider.Y());
-        // drawCircle(0, 0, player.collider.Radius());
+        translate(player.collider.X(), player.collider.Y());
+        drawCircle(0, 0, player.collider.Radius());
 
         restoreLastTransform();
-        translate(map.backCollider.LeftX(), map.backCollider.TopY());
-        drawRectangle(0, 0, map.backCollider.RightX() - map.backCollider.LeftX(), map.backCollider.BottomY() - map.backCollider.TopY());
+        translate(map.rightHouseCollider.LeftX(), map.rightHouseCollider.TopY());
+        drawRectangle(0, 0, map.rightHouseCollider.RightX() - map.rightHouseCollider.LeftX(), map.rightHouseCollider.BottomY() - map.rightHouseCollider.TopY());
 
         restoreLastTransform();
     }

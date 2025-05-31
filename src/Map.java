@@ -1,5 +1,11 @@
 public class Map {
     // Holds the info for all of the tilemaps.
+    enum MapToRender {
+        MARKET,
+        HOME
+    }
+
+    MapToRender mapToRender;
 
     // Market Map
     private int marketRenderingLayers;
@@ -9,10 +15,19 @@ public class Map {
     // private int homeRenderingLayers;
     // private TileMap[] homeMap;
 
-    BoxCollider backCollider;
+    // Colliders for the edges of the map
+    BoxCollider topCollider;
+    BoxCollider bottomCollider;
+    BoxCollider leftCollider;
     BoxCollider rightCollider;
 
+    // Colliders for the houses at the top of the screen
+    BoxCollider leftHouseCollider;
+    BoxCollider rightHouseCollider;
+
     Map () {
+        mapToRender = MapToRender.MARKET;
+
         marketRenderingLayers = 4;
         // 0 - Background
         // 1 - Floor tiles
@@ -39,7 +54,13 @@ public class Map {
         marketMap[2].addRowToMap(new int[]{12, 6, 21, 7, 23, 28, 21, 20, 20, 30}, new int[]{2, 3, 4, 5, 6, 9, 10, 11, 12, 13}, 6);
         marketMap[2].addRowToMap(new int[]{28, 29, 30, 28, 29, 20, 20, 30}, new int[]{3, 4, 5, 9, 10, 11, 12, 13}, 7);
 
-        backCollider = new BoxCollider(0, 500, 214, 224);
+        topCollider = new BoxCollider(0, 500, 214, 224);
+        bottomCollider = new BoxCollider(0, 500, 500, 510);
+        leftCollider = new BoxCollider(-10, 0, 214, 510);
+        rightCollider = new BoxCollider(500, 510, 214, 510);
+
+        leftHouseCollider = new BoxCollider(98, 188, 224, 256);
+        rightHouseCollider = new BoxCollider(290, 446, 224, 256);
     }
 
 

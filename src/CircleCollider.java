@@ -10,16 +10,25 @@ public class CircleCollider {
     }
 
     // -------------------------------------------------------------------- CHECK FOR COLLISIONS --------------------------------------------------------------------
-    // Overload for checking for collisions with another circle
-    public boolean IsColliding(int otherX, int otherY, int otherRadius) {
+    // Overloads for checking for collisions with another circle
+    public boolean IsColliding(double otherX, double otherY, int otherRadius) {
         if (GameEngine.distance(x, y, otherX, otherY) < radius + otherRadius) {
             return true;
         }
         return false;
     }
 
-    // Overload for checking for collisions with a box
+    public boolean IsColliding(CircleCollider circle) {
+        return IsColliding(circle.X(), circle.Y(), circle.Radius());
+    }
+
+    // Overloads for checking for collisions with a box
     public boolean IsColliding(int otherLeftX, int otherRightX, int otherTopY, int otherBottomY) {
+        // If not within any bounds
+        if ((x < otherLeftX || x > otherRightX) && (y > otherBottomY || y < otherTopY)) {
+            return false;
+        }
+
         if (   GameEngine.distance(x, y, otherLeftX, otherTopY) > radius
             && GameEngine.distance(x, y, otherLeftX, otherBottomY) > radius
             && GameEngine.distance(x, y, otherRightX, otherTopY) > radius
@@ -31,12 +40,16 @@ public class CircleCollider {
             }
 
             // if within bounds of y but are not within bounds of x
-            if ((y > otherBottomY && y < otherTopY) && (x - radius > otherLeftX || x + radius < otherRightX)) {
+            if ((y < otherBottomY && y > otherTopY) && (x - radius > otherRightX || x + radius < otherLeftX)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    public boolean IsColliding(BoxCollider box) {
+        return IsColliding(box.LeftX(), box.RightX(), box.TopY(), box.BottomY());
     }
 
     // -------------------------------------------------------------------- GET INFO --------------------------------------------------------------------
