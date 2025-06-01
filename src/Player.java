@@ -52,7 +52,7 @@ public class Player {
     int delay;
 
     Player() {
-        x = 100;
+        x = 300;
         y = 300;
         width = 30;
         height = 50;

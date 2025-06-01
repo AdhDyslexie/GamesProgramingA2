@@ -8,9 +8,9 @@ public class DayCycle {
 
     // Basic Constructor
     DayCycle() {
-        startingDays = 7;
+        startingDays = 8;
         daysRemaining = startingDays;
-        actionsPerDay = 1;
+        actionsPerDay = 5;
     }
 
     // Constructor taking starting number of days and actions per day

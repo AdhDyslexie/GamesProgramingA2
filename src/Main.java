@@ -1,3 +1,5 @@
+// 
+
 // import java.awt.RenderingHints.Key;
 import java.awt.event.*;
 import java.math.BigDecimal;
@@ -23,15 +25,7 @@ public class Main extends GameEngine{
     Npc npc;
     DayCycle dayCycle;
 
-    AudioClip testClip;
-
     public void init() {
-        // So. I tried really hard to get sound in. I did a lot of debugging. I tried like 5 different methods. I spent hours on this.
-        // I unfortunately was not able to get sounds playing consistently from anywhere but init(). Sometimes they would play from update(),
-        // but sometimes they would be so quiet you could barely hear them and sometimes they would be a normal volume, with seemingly no
-        // reason. I tried to use the function which takes a volume float but that always gave me an error message saying it was unable
-        // to play the sound. Sounds refused to play from anywhere but init() and update(), and I have no clue why. - Callum
-        testClip = loadAudio("CoinsClinking.wav");
         mWidth = 500;
         mHeight = 500;
 
@@ -44,9 +38,7 @@ public class Main extends GameEngine{
         Image tempimage = loadImage("tileset.png");
         npc = new Npc(150, 300, 30, 50, tempimage, items.getDefinitionAtIndex(0));
 
-        floorItems = new ItemInstance[2];
-        floorItems[0] = new ItemInstance(20, 300, false, items.getDefinitionAtIndex(0));
-        floorItems[1] = new ItemInstance(50, 370, false, items.getDefinitionAtIndex(1));
+        floorItems = new ItemInstance[5];
         dayCycle = new DayCycle();
 
         player.setActionsRemaining(dayCycle.ActionsPerDay());
@@ -56,41 +48,59 @@ public class Main extends GameEngine{
 
     @Override
     public void update(double dt) {
-        // Check for collisions with the edges of the map
-        if (player.collider.IsColliding(map.topCollider)) {
-            player.up = false;
-        }
-        if (player.collider.IsColliding(map.bottomCollider)) {
-            player.down = false;
-        }
-        if (player.collider.IsColliding(map.leftCollider)) {
-            player.left = false;
-        }
-        if (player.collider.IsColliding(map.rightCollider)) {
-            player.right = false;
-        }
-
-        // Check for collisions with the left house
-        if (player.collider.IsColliding(map.leftHouseCollider)) {
-            // If player is within x bounds of house, they should not be able to move up
-            if (player.x + player.collider.Radius() / 2 > map.leftHouseCollider.LeftX() && player.x - player.collider.Radius() / 2 < map.leftHouseCollider.RightX()) {
+        switch (map.mapToRender) {
+            case MARKET:
+            // Check for collisions with the edges of the map
+            if (player.collider.IsColliding(map.marketTopCollider)) {
                 player.up = false;
-            } else if (player.x - player.collider.Radius() < map.leftHouseCollider.LeftX()) {
-                player.right = false;
-            } else if (player.x + player.collider.Radius() > map.leftHouseCollider.RightX()) {
+            }
+            if (player.collider.IsColliding(map.marketBottomCollider)) {
+                player.down = false;
+            }
+            if (player.collider.IsColliding(map.marketLeftCollider)) {
                 player.left = false;
             }
-        }
-
-        // Check for collisions with the right house
-        if (player.collider.IsColliding(map.rightHouseCollider)) {
-            // If player is within x bounds of house, they should not be able to move up
-            if (player.x + player.collider.Radius() / 2 > map.rightHouseCollider.LeftX() && player.x - player.collider.Radius() / 2 < map.rightHouseCollider.RightX()) {
-                player.up = false;
-            } else if (player.x - player.collider.Radius() < map.rightHouseCollider.LeftX()) {
+            if (player.collider.IsColliding(map.marketRightCollider)) {
                 player.right = false;
-            } else if (player.x + player.collider.Radius() > map.rightHouseCollider.RightX()) {
+            }
+
+            // Check for collisions with the left house
+            if (player.collider.IsColliding(map.leftHouseCollider)) {
+                // If player is within x bounds of house, they should not be able to move up
+                if (player.x + player.collider.Radius() / 2 > map.leftHouseCollider.LeftX() && player.x - player.collider.Radius() / 2 < map.leftHouseCollider.RightX()) {
+                    player.up = false;
+                } else if (player.x - player.collider.Radius() < map.leftHouseCollider.LeftX()) {
+                    player.right = false;
+                } else if (player.x + player.collider.Radius() > map.leftHouseCollider.RightX()) {
+                    player.left = false;
+                }
+            }
+
+            // Check for collisions with the right house
+            if (player.collider.IsColliding(map.rightHouseCollider)) {
+                // If player is within x bounds of house, they should not be able to move up
+                if (player.x + player.collider.Radius() / 2 > map.rightHouseCollider.LeftX() && player.x - player.collider.Radius() / 2 < map.rightHouseCollider.RightX()) {
+                    player.up = false;
+                } else if (player.x - player.collider.Radius() < map.rightHouseCollider.LeftX()) {
+                    player.right = false;
+                } else if (player.x + player.collider.Radius() > map.rightHouseCollider.RightX()) {
+                    player.left = false;
+                }
+            }
+            break;
+
+            case HOME:
+            if (player.collider.IsColliding(map.homeTopCollider)) {
+                player.up = false;
+            }
+            if (player.collider.IsColliding(map.homeBottomCollider)) {
+                player.down = false;
+            }
+            if (player.collider.IsColliding(map.homeLeftCollider)) {
                 player.left = false;
+            }
+            if (player.collider.IsColliding(map.homeRightCollider)) {
+                player.right = false;
             }
         }
 
@@ -120,21 +130,28 @@ public class Main extends GameEngine{
                 break;
         }
 
-        drawText(50, 50, "Money: " + player.money);
-        drawText(50, 80, "Actions remaining: " + player.ActionsRemaining());
-        drawText(50, 110, "Days remaining: " + dayCycle.DaysRemaining());
+        drawText(20, 30, "Money: " + player.money, "Arial", 20);
+        drawText(20, 60, "Actions remaining: " + player.ActionsRemaining(), "Arial", 20);
+        drawText(20, 90, "Days remaining: " + dayCycle.DaysRemaining(), "Arial", 20);
+
+        if (map.mapToRender == Map.MapToRender.HOME) {
+            changeColor(100, 100, 100);
+            drawText(70, 470, "Press 'N' to go to market, with 5 items in your inventory", "Arial", 15);
+        }
     }
 
     // ########################################### \\
     // ############# Draw methods ################ \\
     // ########################################### \\
     public void drawNpc() {
-        saveCurrentTransform();
+        if (map.mapToRender == Map.MapToRender.MARKET) {
+            saveCurrentTransform();
 
-        translate(npc.X() - npc.Width() / 2, npc.Y() - npc.Height());
-        drawImage(npc.Sprite(), 0, 0);
+            translate(npc.X() - npc.Width() / 2, npc.Y() - npc.Height());
+            drawImage(npc.Sprite(), 0, 0);
 
-        restoreLastTransform();
+            restoreLastTransform();
+        }
     }
 
     public void drawPlayer() {
@@ -167,13 +184,15 @@ public class Main extends GameEngine{
     }
 
     public void drawFloorItems() {
-        saveCurrentTransform();
+        if (map.mapToRender == Map.MapToRender.MARKET) {
+            saveCurrentTransform();
 
-        for (int i = 0; i < floorItems.length; i++) {
-            if (floorItems[i] != null) {
-                translate(floorItems[i].xPos() - 16, floorItems[i].yPos() - 16);
-                drawImage(floorItems[i].Image(), 0, 0);
-                restoreLastTransform();
+            for (int i = 0; i < floorItems.length; i++) {
+                if (floorItems[i] != null) {
+                    translate(floorItems[i].xPos() - 16, floorItems[i].yPos() - 16);
+                    drawImage(floorItems[i].Image(), 0, 0);
+                    restoreLastTransform();
+                }
             }
         }
     }
@@ -442,7 +461,7 @@ public class Main extends GameEngine{
                 } else if (e.getX() > player.tradingMenu.ButtonLeftWorldX() && e.getX() < player.tradingMenu.ButtonRightWorldX()) {
                     if (e.getY() > player.tradingMenu.ButtonTopWorldY() && e.getY() < player.tradingMenu.ButtonBottomWorldY()) {
                         // Trading something! Increase money, remove item from inventory, decrease actions, set slot to empty
-                        playAudio(testClip, .05f);
+                        playAudio(player.tradingMenu.ButtonSound(), .05f);
                         player.tradingMenu.setButtonColor(java.awt.Color.GRAY);
                         player.money += player.inventory.getItemAtIndex(player.tradingMenu.SlotTakenItemIndex()).Value() * npc.Multiplier();
                         player.decrimentActionsRemaining();
@@ -461,6 +480,20 @@ public class Main extends GameEngine{
     public void mouseReleased(MouseEvent e) {
         if (player.tradingMenu.ButtonColor() == java.awt.Color.GRAY) {
             player.tradingMenu.setButtonColor(black);
+        }
+    }
+
+    public void NewDay() {
+        player.setActionsRemaining(dayCycle.NewDay());
+        player.x = 300;
+        player.y = 300;
+
+        // call daycycle new day
+        // move player
+        // spawn random items
+
+        for (int i = 0; i < floorItems.length; i++) {
+            floorItems[i] = new ItemInstance(30, (i * 10) + 50, false, rand());
         }
     }
 }

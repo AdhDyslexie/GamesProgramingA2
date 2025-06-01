@@ -57,7 +57,7 @@ public class TradingMenu {
         itemInSlotIndex = -1;
         buttonColor = Color.BLACK;
 
-        buttonSound = GameEngine.loadAudio("ClickSound.wav");
+        buttonSound = GameEngine.loadAudio("CoinsClinking.wav");
     }
 
     // -------------------------------------------------------------------- GET INFO --------------------------------------------------------------------

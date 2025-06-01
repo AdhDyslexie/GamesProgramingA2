@@ -17,15 +17,24 @@ public class Map {
     private TileMap[] homeMap;
     private TileSet homeTileSet;
 
-    // Colliders for the edges of the map
-    BoxCollider topCollider;
-    BoxCollider bottomCollider;
-    BoxCollider leftCollider;
-    BoxCollider rightCollider;
+    // Colliders for the edges of the market map
+    BoxCollider marketTopCollider;
+    BoxCollider marketBottomCollider;
+    BoxCollider marketLeftCollider;
+    BoxCollider marketRightCollider;
 
-    // Colliders for the houses at the top of the screen
+    // Colliders for the houses at the top of the screen on the market map
     BoxCollider leftHouseCollider;
     BoxCollider rightHouseCollider;
+
+    // Colliders for the edges of the home map
+    BoxCollider homeTopCollider;
+    BoxCollider homeBottomCollider;
+    BoxCollider homeLeftCollider;
+    BoxCollider homeRightCollider;
+
+    BoxCollider leftDrawerCollider;
+    BoxCollider rightDrawerCollider;
 
     Map () {
         mapToRender = MapToRender.HOME;
@@ -94,13 +103,20 @@ public class Map {
         homeMap[3].addRowToMap(new int[]{10}, new int[]{10}, 10);
 
         // Market colliders
-        topCollider = new BoxCollider(0, 500, 214, 224);
-        bottomCollider = new BoxCollider(0, 500, 500, 510);
-        leftCollider = new BoxCollider(-10, 0, 214, 510);
-        rightCollider = new BoxCollider(500, 510, 214, 510);
+        marketTopCollider = new BoxCollider(0, 500, 214, 224);
+        marketBottomCollider = new BoxCollider(0, 500, 500, 510);
+        marketLeftCollider = new BoxCollider(-10, 0, 214, 510);
+        marketRightCollider = new BoxCollider(500, 510, 214, 510);
 
         leftHouseCollider = new BoxCollider(98, 188, 224, 256);
         rightHouseCollider = new BoxCollider(290, 446, 224, 256);
+
+
+        // Home Colliders
+        homeTopCollider = new BoxCollider(192, 352, 214, 224);
+        homeBottomCollider = new BoxCollider(192, 352, 352, 362);
+        homeLeftCollider = new BoxCollider(182, 192, 214, 362);
+        homeRightCollider = new BoxCollider(352, 362, 214, 362);
     }
 
 
