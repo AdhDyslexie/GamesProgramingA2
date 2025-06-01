@@ -44,6 +44,7 @@ public class Main extends GameEngine{
         player.setActionsRemaining(dayCycle.ActionsPerDay());
 
         map = new Map();
+        NewDay();
     }
 
     @Override
@@ -134,13 +135,14 @@ public class Main extends GameEngine{
                 break;
         }
 
-        changeColor(50, 50, 50);
         drawText(20, 30, "Money: " + player.money, "Arial", 20);
         drawText(20, 60, "Actions remaining: " + player.ActionsRemaining(), "Arial", 20);
-        drawText(20, 90, "Days remaining: " + dayCycle.DaysRemaining(), "Arial", 20);
+        drawText(20, 90, "Day(s): " + dayCycle.DaysRemaining(), "Arial", 20);
 
         if (map.mapToRender == Map.MapToRender.HOME) {
             changeColor(100, 100, 100);
+            drawText(130, 390, "Press 'E' to open your inventory", "Arial", 15);
+            drawText(170, 430, "Press 'F' to interact", "Arial", 15);
             drawText(70, 470, "Press 'N' to go to market, with 5 items in your inventory", "Arial", 15);
         }
         if (player.winmode != 0) {
@@ -205,6 +207,16 @@ public class Main extends GameEngine{
         if (map.mapToRender == Map.MapToRender.MARKET) {
             saveCurrentTransform();
 
+            for (int i = 0; i < floorItems.length; i++) {
+                if (floorItems[i] != null) {
+                    translate(floorItems[i].xPos() - 16, floorItems[i].yPos() - 16);
+                    drawImage(floorItems[i].Image(), 0, 0);
+                    restoreLastTransform();
+                }
+            }
+        }
+        if (map.mapToRender == Map.MapToRender.HOME) {
+            saveCurrentTransform();
             for (int i = 0; i < floorItems.length; i++) {
                 if (floorItems[i] != null) {
                     translate(floorItems[i].xPos() - 16, floorItems[i].yPos() - 16);
@@ -342,14 +354,7 @@ public class Main extends GameEngine{
         for (int i = 0; i < map.currentMapRenderLayers(); i++) {
             // For each tile in this layer
             if (i == player.renderLayer - 1) {
-                if (player.y > map.MarketMap()[3].tileMap[0].y * 32) {
-                    drawImage(map.MarketMap()[3].tileMap[0].tile.image, (map.MarketMap()[3].tileMap[0].x * 32) - 16, (map.MarketMap()[3].tileMap[0].y * 32) - 32);
-                    drawPlayer();
-                } else {
-                    drawPlayer();
-                    drawImage(map.MarketMap()[3].tileMap[0].tile.image, (map.MarketMap()[3].tileMap[0].x * 32) - 16, (map.MarketMap()[3].tileMap[0].y * 32) - 32);
-                }
-                
+                drawPlayer();
                 nonTilemapLayersRendered++;
             } else {
                 for (int j = 0; j < map.CurrentMap()[i - nonTilemapLayersRendered].tileMap.length; j++) {
@@ -386,8 +391,12 @@ public class Main extends GameEngine{
                 player.IsMoving = false;
             }
         }
-        if (e.getKeyCode() == KeyEvent.VK_R) {
-            
+        if (e.getKeyCode() == KeyEvent.VK_N) {
+            if (player.inventory.getItemAtIndex(4) != null) {
+                map.mapToRender = map.mapToRender.MARKET;
+                player.collider.setX((int)player.x);
+                player.collider.setY((int)(player.y - player.width / 2));
+            }
         }
 
         // Do world stuff
@@ -398,40 +407,24 @@ public class Main extends GameEngine{
         // Interact with things
         if (e.getKeyCode() == KeyEvent.VK_F) {
             if (player.menuOpen == Player.MenuOpen.NONE) {
-                switch (map.mapToRender) {
-                    case MARKET:
-                        if (distance(player.x, player.y, map.MarketMap()[3].tileMap[0].x * 32, map.MarketMap()[3].tileMap[0].y * 32) < player.reach) {
-                            if (player.menuOpen == Player.MenuOpen.BUYBUTTON) {
-                                player.menuOpen = Player.MenuOpen.NONE;
+                for (int i = 0; i < floorItems.length; i++) {
+                    if (floorItems[i] != null) {
+                        if (distance(floorItems[i].xPos(), floorItems[i].yPos(), player.x, player.y) < player.reach) {
+                            if (player.inventory.addItem(floorItems[i])) {
+                                floorItems[i] = null;
                             }
                             break;
                         }
-                        for (int i = 0; i < 1; i++) {
-                            if (distance(npc.X(), npc.Y(), player.x, player.y) < player.reach) {
-                                player.menuOpen = Player.MenuOpen.TRADING;
-                            }
-                        }
-                        break;
-
-                    case HOME:
-                        for (int i = 0; i < floorItems.length; i++) {
-                            if (floorItems[i] != null) {
-                                if (distance(floorItems[i].xPos(), floorItems[i].yPos(), player.x, player.y) < player.reach) {
-                                    if (player.inventory.addItem(floorItems[i])) {
-                                        floorItems[i] = null;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                        break;
-
+                    }
+                }
+                for (int i = 0; i < 1; i++) {
+                    if (distance(npc.X(), npc.Y(), player.x, player.y) < player.reach) {
+                        player.menuOpen = Player.MenuOpen.TRADING;
+                    }
                 }
             } else if (player.menuOpen == Player.MenuOpen.TRADING) {
                 player.menuOpen = Player.MenuOpen.NONE;
                 player.ReturnItemFromTradingMenu();
-            } else if (player.menuOpen == Player.MenuOpen.BUYBUTTON) {
-                player.menuOpen = Player.MenuOpen.NONE;;
             }
         }
     }
@@ -519,7 +512,7 @@ public class Main extends GameEngine{
                         player.tradingMenu.setSlotTaken(false);
                         npc.updateMultiplier(null);
                         if (player.ActionsRemaining() <= 0) {
-                            player.setActionsRemaining(dayCycle.NewDay());
+                            NewDay();
                         }
                     }
                 }
@@ -541,16 +534,19 @@ public class Main extends GameEngine{
     }
 
     public void NewDay() {
+        map.mapToRender = map.mapToRender.HOME;
         player.setActionsRemaining(dayCycle.NewDay());
         player.x = 300;
         player.y = 300;
+        player.collider.setX((int)player.x);
+        player.collider.setY((int)(player.y - player.width / 2));
 
         // call daycycle new day
         // move player
         // spawn random items
 
         for (int i = 0; i < floorItems.length; i++) {
-            //floorItems[i] = new ItemInstance(30, (i * 10) + 50, false, rand(1));
+            floorItems[i] = new ItemInstance(300 - rand(100), (i * 25) + 230, false, items.getDefinitionAtIndex(rand(11)));
         }
     }
 }
