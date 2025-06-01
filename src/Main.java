@@ -36,7 +36,7 @@ public class Main extends GameEngine{
         player = new Player();
         
         Image tempimage = loadImage("tileset.png");
-        npc = new Npc(150d, 300d, 30, 50, tempimage, items.getDefinitionAtIndex(0));
+        npc = new Npc(150d, 300d, 30, 50, tempimage, items.getDefinitionAtIndex(0), 0);
 
         floorItems = new ItemInstance[5];
         dayCycle = new DayCycle();
@@ -102,6 +102,7 @@ public class Main extends GameEngine{
             if (player.collider.IsColliding(map.homeRightCollider)) {
                 player.right = false;
             }
+            break;
         }
 
         player.update();
@@ -139,7 +140,7 @@ public class Main extends GameEngine{
 
         if (map.mapToRender == Map.MapToRender.HOME) {
             changeColor(100, 100, 100);
-
+            drawText(70, 470, "Press 'N' to go to market, with 5 items in your inventory", "Arial", 15);
         }
         if (player.winmode != 0) {
             changeColor(black);
@@ -337,17 +338,17 @@ public class Main extends GameEngine{
         int nonTilemapLayersRendered = 0;
 
         // For each layer
-        for (int i = 0; i < map.MarketRenderLayers(); i++) {
+        for (int i = 0; i < map.currentMapRenderLayers(); i++) {
             // For each tile in this layer
             if (i == player.renderLayer - 1) {
                 drawPlayer();
                 nonTilemapLayersRendered++;
             } else {
-                for (int j = 0; j < map.MarketMap()[i - nonTilemapLayersRendered].tileMap.length; j++) {
+                for (int j = 0; j < map.CurrentMap()[i - nonTilemapLayersRendered].tileMap.length; j++) {
                     // Draw this tile at its tile-based location * the tile width
-                    drawImage(  map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].tile.image,
-                                map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].x * map.MarketMap()[i - nonTilemapLayersRendered].TileWidth(),
-                                map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].y * map.MarketMap()[i - nonTilemapLayersRendered].TileHeight());
+                    drawImage(  map.CurrentMap()[i - nonTilemapLayersRendered].tileMap[j].tile.image,
+                                map.CurrentMap()[i - nonTilemapLayersRendered].tileMap[j].x * map.CurrentMap()[i - nonTilemapLayersRendered].TileWidth(),
+                                map.CurrentMap()[i - nonTilemapLayersRendered].tileMap[j].y * map.CurrentMap()[i - nonTilemapLayersRendered].TileHeight());
                 }
             }
         }

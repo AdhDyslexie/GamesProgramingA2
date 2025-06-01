@@ -9,8 +9,11 @@ public class Player {
     enum MenuOpen {
         INVENTORY,
         TRADING,
+        BUYBUTTON,
         NONE
     }
+
+    int winmode;
 
     double oldX;
     double oldY;

@@ -8,6 +8,7 @@ public class Npc {
 
     private int width;
     private int height;
+    private int type;
 
     private Image sprite;
 
@@ -26,7 +27,7 @@ public class Npc {
         collider = new CircleCollider((int)x, (int)y - width / 2, width / 2);
     }
 
-    Npc(double xNew, double yNew, int wid, int hei, Image spri, ItemDefinition fav) {
+    Npc(double xNew, double yNew, int wid, int hei, Image spri, ItemDefinition fav, int typ) {
         x = xNew;
         y = yNew;
         multiplier = 1;
@@ -35,6 +36,7 @@ public class Npc {
         sprite = spri;
         favourite_item = fav;
         collider = new CircleCollider((int)x, (int)y - width / 2, width / 2);
+        type = typ;
     }
 
     // ------------------------------------------------- GET METHODS -----------------------------------------------------
@@ -77,5 +79,12 @@ public class Npc {
                 multiplier += .2f;
             }
         }
+    }
+
+    int delay;
+    TileSet npcAnimation = new TileSet("npcidlesheet.png", (int)30, (int)50, 2, 4);
+
+    public Tile npcAnimate(int npcframe, int npcType) {
+        return npcAnimation.tiles[(npcType * 4) + npcframe];
     }
 }
