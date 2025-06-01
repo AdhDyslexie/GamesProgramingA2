@@ -28,7 +28,7 @@ public class Main extends GameEngine{
         // but sometimes they would be so quiet you could barely hear them and sometimes they would be a normal volume, with seemingly no
         // reason. I tried to use the function which takes a volume float but that always gave me an error message saying it was unable
         // to play the sound. Sounds refused to play from anywhere but init() and update(), and I have no clue why. - Callum
-        testClip = loadAudio("ButtonSound.wav");
+        testClip = loadAudio("CoinsClinking.wav");
         mWidth = 500;
         mHeight = 500;
 
@@ -39,11 +39,11 @@ public class Main extends GameEngine{
         player = new Player();
         
         Image tempimage = loadImage("tileset.png");
-        npc = new Npc(150, 150, 30, 50, tempimage, items.getDefinitionAtIndex(0));
+        npc = new Npc(150, 300, 30, 50, tempimage, items.getDefinitionAtIndex(0));
 
         floorItems = new ItemInstance[2];
-        floorItems[0] = new ItemInstance(20, 30, false, items.getDefinitionAtIndex(0));
-        floorItems[1] = new ItemInstance(50, 70, false, items.getDefinitionAtIndex(1));
+        floorItems[0] = new ItemInstance(20, 300, false, items.getDefinitionAtIndex(0));
+        floorItems[1] = new ItemInstance(50, 370, false, items.getDefinitionAtIndex(1));
         dayCycle = new DayCycle();
 
         player.setActionsRemaining(dayCycle.ActionsPerDay());
@@ -140,6 +140,16 @@ public class Main extends GameEngine{
         
         drawImage(player.animate().Image(),0,0,player.width,player.height);
 
+        // restoreLastTransform();
+        // translate(player.x, player.y);
+        // drawLine(0, 0, 0, 1, 5);
+
+        // restoreLastTransform();
+        // if (floorItems[0] != null) {
+        //     translate(floorItems[0].xPos(), floorItems[0].yPos());
+        //     drawLine(0, 0, 0, 1, 5);
+        // }
+
         // Draw player's collider -- for debugging purposes
         // restoreLastTransform();
         // translate(player.collider.X(), player.collider.Y());
@@ -158,7 +168,7 @@ public class Main extends GameEngine{
 
         for (int i = 0; i < floorItems.length; i++) {
             if (floorItems[i] != null) {
-                translate(floorItems[i].xPos(), floorItems[i].yPos());
+                translate(floorItems[i].xPos() - 16, floorItems[i].yPos() - 16);
                 drawImage(floorItems[i].Image(), 0, 0);
                 restoreLastTransform();
             }
@@ -387,13 +397,13 @@ public class Main extends GameEngine{
                 } else if (e.getX() > player.tradingMenu.ButtonLeftWorldX() && e.getX() < player.tradingMenu.ButtonRightWorldX()) {
                     if (e.getY() > player.tradingMenu.ButtonTopWorldY() && e.getY() < player.tradingMenu.ButtonBottomWorldY()) {
                         // Trading something! Increase money, remove item from inventory, decrease actions, set slot to empty
+                        playAudio(testClip, .05f);
                         player.tradingMenu.setButtonColor(java.awt.Color.GRAY);
                         player.money += player.inventory.getItemAtIndex(player.tradingMenu.SlotTakenItemIndex()).Value() * npc.Multiplier();
                         player.decrimentActionsRemaining();
                         player.inventory.removeItemAtIndex(player.tradingMenu.SlotTakenItemIndex());
                         player.tradingMenu.setSlotTaken(false);
                         npc.updateMultiplier(null);
-                        // playAudio(testClip); // Never plays... but this is where this code would be if it were working.
                         if (player.ActionsRemaining() <= 0) {
                             player.setActionsRemaining(dayCycle.NewDay());
                         }
