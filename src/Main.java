@@ -42,7 +42,7 @@ public class Main extends GameEngine{
         player = new Player();
         
         Image tempimage = loadImage("tileset.png");
-        npc = new Npc(150, 300, 30, 50, tempimage, items.getDefinitionAtIndex(0));
+        npc = new Npc(150, 300, 30, 50, tempimage, items.getDefinitionAtIndex(0),0);
 
         floorItems = new ItemInstance[2];
         floorItems[0] = new ItemInstance(20, 300, false, items.getDefinitionAtIndex(0));
@@ -107,6 +107,9 @@ public class Main extends GameEngine{
         drawNpc();
 
         switch (player.menuOpen) {
+            case BUYBUTTON:
+                winbutton();
+                break;
             case INVENTORY:
                 drawInventory(70, 150);
                 break;
@@ -123,6 +126,19 @@ public class Main extends GameEngine{
         drawText(50, 50, "Money: " + player.money);
         drawText(50, 80, "Actions remaining: " + player.ActionsRemaining());
         drawText(50, 110, "Days remaining: " + dayCycle.DaysRemaining());
+        if (player.winmode != 0) {
+            changeColor(black);
+            drawSolidRectangle(0,0,500,500);
+            changeColor(white);
+            if (player.winmode == 101) {
+                drawText(135, 200, "You Win!");
+            }
+            if (player.winmode < 101) {
+                player.money -= 1;
+                player.winmode += 1;
+            }
+            drawText(130,250,"Money: " + player.money);
+        }
     }
 
     // ########################################### \\
@@ -132,7 +148,7 @@ public class Main extends GameEngine{
         saveCurrentTransform();
 
         translate(npc.X() - npc.Width() / 2, npc.Y() - npc.Height());
-        drawImage(npc.Sprite(), 0, 0);
+        drawImage(npc.npcAnimate(player.animframe,npc.Type()).Image(), 0, 0,30,50);
 
         restoreLastTransform();
     }
@@ -207,14 +223,13 @@ public class Main extends GameEngine{
                 }
             }
         }
-        if (player.menuOpen == Player.MenuOpen.INVENTORY) {
+        if (player.menuOpen == player.menuOpen.INVENTORY) {
             hover(0);
         } else {
             hover(150);
         }
         restoreLastTransform();
     }
-
     public void hover (int l) {
         PointerInfo a = MouseInfo.getPointerInfo();
         Point b = a.getLocation();
@@ -303,20 +318,28 @@ public class Main extends GameEngine{
         int nonTilemapLayersRendered = 0;
 
         // For each layer
-        for (int i = 0; i < map.currentMapRenderLayers(); i++) {
+        for (int i = 0; i < map.MarketRenderLayers(); i++) {
             // For each tile in this layer
             if (i == player.renderLayer - 1) {
                 drawPlayer();
                 nonTilemapLayersRendered++;
             } else {
-                for (int j = 0; j < map.CurrentMap()[i - nonTilemapLayersRendered].tileMap.length; j++) {
+                for (int j = 0; j < map.MarketMap()[i - nonTilemapLayersRendered].tileMap.length; j++) {
                     // Draw this tile at its tile-based location * the tile width
-                    drawImage(  map.CurrentMap()[i - nonTilemapLayersRendered].tileMap[j].tile.image,
-                                map.CurrentMap()[i - nonTilemapLayersRendered].tileMap[j].x * map.CurrentMap()[i - nonTilemapLayersRendered].TileWidth(),
-                                map.CurrentMap()[i - nonTilemapLayersRendered].tileMap[j].y * map.CurrentMap()[i - nonTilemapLayersRendered].TileHeight());
+                    drawImage(  map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].tile.image,
+                                map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].x * map.MarketMap()[i - nonTilemapLayersRendered].TileWidth(),
+                                map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].y * map.MarketMap()[i - nonTilemapLayersRendered].TileHeight());
                 }
             }
         }
+    }
+
+    public void winbutton() {
+        changeColor(white);
+        drawSolidRectangle(200,300,200,50);
+        changeColor(black);
+        drawText(220,330,"Buy store? $100","Arial",20);
+
     }
 
     // ########################################### \\
@@ -335,6 +358,14 @@ public class Main extends GameEngine{
                 player.IsMoving = false;
             }
         }
+        if (e.getKeyCode() == KeyEvent.VK_R) {
+            if (player.menuOpen == Player.MenuOpen.BUYBUTTON) {
+                player.menuOpen = Player.MenuOpen.NONE;
+            } else if (player.menuOpen == Player.MenuOpen.NONE){
+                player.menuOpen = Player.MenuOpen.BUYBUTTON;
+                player.IsMoving = false;
+            }
+        }
 
         // Do world stuff
         if (player.menuOpen == Player.MenuOpen.NONE) {
@@ -349,7 +380,6 @@ public class Main extends GameEngine{
                         if (distance(floorItems[i].xPos(), floorItems[i].yPos(), player.x, player.y) < player.reach) {
                             if (player.inventory.addItem(floorItems[i])) {
                                 floorItems[i] = null;
-                                playAudio(player.pickupSound);
                             }
                             break;
                         }
@@ -453,6 +483,13 @@ public class Main extends GameEngine{
                             player.setActionsRemaining(dayCycle.NewDay());
                         }
                     }
+                }
+            }
+        }
+        if (player.menuOpen == player.menuOpen.BUYBUTTON) {
+            if (e.getY() > 300 && e.getY() < 350 && e.getX() > 200 && e.getX() < 400) {
+                if (player.money > 99) {        // win mode
+                    player.winmode = 1;
                 }
             }
         }
