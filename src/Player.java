@@ -34,8 +34,11 @@ public class Player {
     TradingMenu tradingMenu;
     MenuOpen menuOpen;
     int renderLayer;
+    int homeRenderLayer;
 
     CircleCollider collider;
+
+    GameEngine.AudioClip pickupSound;
 
     // -1 if not holding any item
     double itemHolding;
@@ -72,6 +75,7 @@ public class Player {
         animstate = 0;
         animframe = 0;
         delay = 0;
+        pickupSound = GameEngine.loadAudio("ItemPickupSound.wav");
     }
 
     // Called in Main's update function every frame.

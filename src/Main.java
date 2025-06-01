@@ -207,13 +207,14 @@ public class Main extends GameEngine{
                 }
             }
         }
-        if (player.menuOpen == player.menuOpen.INVENTORY) {
+        if (player.menuOpen == Player.MenuOpen.INVENTORY) {
             hover(0);
         } else {
             hover(150);
         }
         restoreLastTransform();
     }
+
     public void hover (int l) {
         PointerInfo a = MouseInfo.getPointerInfo();
         Point b = a.getLocation();
@@ -302,17 +303,17 @@ public class Main extends GameEngine{
         int nonTilemapLayersRendered = 0;
 
         // For each layer
-        for (int i = 0; i < map.MarketRenderLayers(); i++) {
+        for (int i = 0; i < map.currentMapRenderLayers(); i++) {
             // For each tile in this layer
             if (i == player.renderLayer - 1) {
                 drawPlayer();
                 nonTilemapLayersRendered++;
             } else {
-                for (int j = 0; j < map.MarketMap()[i - nonTilemapLayersRendered].tileMap.length; j++) {
+                for (int j = 0; j < map.CurrentMap()[i - nonTilemapLayersRendered].tileMap.length; j++) {
                     // Draw this tile at its tile-based location * the tile width
-                    drawImage(  map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].tile.image,
-                                map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].x * map.MarketMap()[i - nonTilemapLayersRendered].TileWidth(),
-                                map.MarketMap()[i - nonTilemapLayersRendered].tileMap[j].y * map.MarketMap()[i - nonTilemapLayersRendered].TileHeight());
+                    drawImage(  map.CurrentMap()[i - nonTilemapLayersRendered].tileMap[j].tile.image,
+                                map.CurrentMap()[i - nonTilemapLayersRendered].tileMap[j].x * map.CurrentMap()[i - nonTilemapLayersRendered].TileWidth(),
+                                map.CurrentMap()[i - nonTilemapLayersRendered].tileMap[j].y * map.CurrentMap()[i - nonTilemapLayersRendered].TileHeight());
                 }
             }
         }
@@ -348,6 +349,7 @@ public class Main extends GameEngine{
                         if (distance(floorItems[i].xPos(), floorItems[i].yPos(), player.x, player.y) < player.reach) {
                             if (player.inventory.addItem(floorItems[i])) {
                                 floorItems[i] = null;
+                                playAudio(player.pickupSound);
                             }
                             break;
                         }

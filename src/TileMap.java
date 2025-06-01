@@ -15,26 +15,18 @@ public class TileMap {
         }
     }
 
-    // The tileset this tilemap will use! Currently this game only uses one tilemap, so it always creates the same one.
-    private TileSet tileSet;
-
-    // Map dimensions in pixels
-    // private double mapHeight;
-    // private double mapWidth;
-
     // Holds all the tiles!
     mapTile[] tileMap;
 
     // Stores the next free index, so we can easily add tiles to the array.
     private int firstFreeIndex;
 
-    // Constructor
-    TileMap(int totalNumTiles) {
-        
-        // mapHeight = 500;
-        // mapWidth = 500;
+    TileSet tileSet;
 
-        tileSet = new TileSet("tilesetv2.png", 32, 32, 4, 8);
+    // Constructor
+    TileMap(int totalNumTiles, final TileSet tiles) {
+
+        tileSet = tiles;
 
         tileMap = new mapTile[totalNumTiles];
         firstFreeIndex = 0;
@@ -102,10 +94,10 @@ public class TileMap {
     }
 
     // Add a ton of random tiles to the map.
-    public void addFloorToMap(int randomOptions, int OptionsStartIndex, int tilesToAdd, int startX, int startY) {
+    public void addFloorToMap(int randomOptions, int OptionsStartIndex, int tilesToAdd, int startX, int startY, int width) {
         Random random = new Random();
         for (int i = 0; i < tilesToAdd; i++) {
-            addTileToMap(random.nextInt(randomOptions) + OptionsStartIndex, i % 16 + startX, i / 16 + startY);
+            addTileToMap(random.nextInt(randomOptions) + OptionsStartIndex, i % width + startX, i / width + startY);
         }
     }
 }
