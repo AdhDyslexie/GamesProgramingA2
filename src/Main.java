@@ -530,7 +530,7 @@ public class Main extends GameEngine{
         // spawn random items
 
         for (int i = 0; i < floorItems.length; i++) {
-            floorItems[i] = new ItemInstance(30, (i * 10) + 50, false, items.items[rand(1)]);
+            //floorItems[i] = new ItemInstance(30, (i * 10) + 50, false, rand(1));
         }
     }
 }
