@@ -13,6 +13,12 @@ public class TileMap {
             x = newX;
             y = newY;
         }
+
+        mapTile(Tile newTile, int newX, int newY) {
+            tile = newTile;
+            x = newX;
+            y = newY;
+        }
     }
 
     // Holds all the tiles!

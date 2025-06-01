@@ -134,6 +134,7 @@ public class Main extends GameEngine{
                 break;
         }
 
+        changeColor(50, 50, 50);
         drawText(20, 30, "Money: " + player.money, "Arial", 20);
         drawText(20, 60, "Actions remaining: " + player.ActionsRemaining(), "Arial", 20);
         drawText(20, 90, "Days remaining: " + dayCycle.DaysRemaining(), "Arial", 20);
@@ -341,7 +342,14 @@ public class Main extends GameEngine{
         for (int i = 0; i < map.currentMapRenderLayers(); i++) {
             // For each tile in this layer
             if (i == player.renderLayer - 1) {
-                drawPlayer();
+                if (player.y > map.MarketMap()[3].tileMap[0].y * 32) {
+                    drawImage(map.MarketMap()[3].tileMap[0].tile.image, (map.MarketMap()[3].tileMap[0].x * 32) - 16, (map.MarketMap()[3].tileMap[0].y * 32) - 32);
+                    drawPlayer();
+                } else {
+                    drawPlayer();
+                    drawImage(map.MarketMap()[3].tileMap[0].tile.image, (map.MarketMap()[3].tileMap[0].x * 32) - 16, (map.MarketMap()[3].tileMap[0].y * 32) - 32);
+                }
+                
                 nonTilemapLayersRendered++;
             } else {
                 for (int j = 0; j < map.CurrentMap()[i - nonTilemapLayersRendered].tileMap.length; j++) {
@@ -379,12 +387,7 @@ public class Main extends GameEngine{
             }
         }
         if (e.getKeyCode() == KeyEvent.VK_R) {
-            if (player.menuOpen == Player.MenuOpen.BUYBUTTON) {
-                player.menuOpen = Player.MenuOpen.NONE;
-            } else if (player.menuOpen == Player.MenuOpen.NONE){
-                player.menuOpen = Player.MenuOpen.BUYBUTTON;
-                player.IsMoving = false;
-            }
+            
         }
 
         // Do world stuff
@@ -395,24 +398,40 @@ public class Main extends GameEngine{
         // Interact with things
         if (e.getKeyCode() == KeyEvent.VK_F) {
             if (player.menuOpen == Player.MenuOpen.NONE) {
-                for (int i = 0; i < floorItems.length; i++) {
-                    if (floorItems[i] != null) {
-                        if (distance(floorItems[i].xPos(), floorItems[i].yPos(), player.x, player.y) < player.reach) {
-                            if (player.inventory.addItem(floorItems[i])) {
-                                floorItems[i] = null;
+                switch (map.mapToRender) {
+                    case MARKET:
+                        if (distance(player.x, player.y, map.MarketMap()[3].tileMap[0].x * 32, map.MarketMap()[3].tileMap[0].y * 32) < player.reach) {
+                            if (player.menuOpen == Player.MenuOpen.BUYBUTTON) {
+                                player.menuOpen = Player.MenuOpen.NONE;
                             }
                             break;
                         }
-                    }
-                }
-                for (int i = 0; i < 1; i++) {
-                    if (distance(npc.X(), npc.Y(), player.x, player.y) < player.reach) {
-                        player.menuOpen = Player.MenuOpen.TRADING;
-                    }
+                        for (int i = 0; i < 1; i++) {
+                            if (distance(npc.X(), npc.Y(), player.x, player.y) < player.reach) {
+                                player.menuOpen = Player.MenuOpen.TRADING;
+                            }
+                        }
+                        break;
+
+                    case HOME:
+                        for (int i = 0; i < floorItems.length; i++) {
+                            if (floorItems[i] != null) {
+                                if (distance(floorItems[i].xPos(), floorItems[i].yPos(), player.x, player.y) < player.reach) {
+                                    if (player.inventory.addItem(floorItems[i])) {
+                                        floorItems[i] = null;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+
                 }
             } else if (player.menuOpen == Player.MenuOpen.TRADING) {
                 player.menuOpen = Player.MenuOpen.NONE;
                 player.ReturnItemFromTradingMenu();
+            } else if (player.menuOpen == Player.MenuOpen.BUYBUTTON) {
+                player.menuOpen = Player.MenuOpen.NONE;;
             }
         }
     }

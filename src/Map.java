@@ -11,6 +11,7 @@ public class Map {
     private int marketRenderingLayers;
     private TileMap[] marketMap;
     private TileSet marketTileSet;
+    private TileSet signTileSet; // preferably this would be a part of marketTileSet but im runnign out of time so I'm doing it as its own
 
     // Player Home Map
     private int homeRenderingLayers;
@@ -36,17 +37,20 @@ public class Map {
     BoxCollider leftDrawerCollider;
     BoxCollider rightDrawerCollider;
 
+    Tile sign;
+    TileMap.mapTile signMapTile;
+
     Map () {
-        mapToRender = MapToRender.HOME;
+        mapToRender = MapToRender.MARKET;
 
         marketRenderingLayers = 4;
         // 0 - Background
         // 1 - Floor tiles
         // 2 - Midground
-        // 3 - Player (4 in Player)
+        // 3 - Player (4 in Player) and Sign
         marketTileSet = new TileSet("tilesetv2.png", 32, 32, 4, 8);
 
-        marketMap = new TileMap[marketRenderingLayers - 1];
+        marketMap = new TileMap[marketRenderingLayers];
 
         marketMap[0] = new TileMap(39, marketTileSet);
         marketMap[0].addRowToMap(new int[]{5, 26, 27}, new int[]{1, 7, 8}, 2);
@@ -66,12 +70,16 @@ public class Map {
         marketMap[2].addRowToMap(new int[]{12, 6, 21, 7, 23, 28, 21, 20, 20, 30}, new int[]{2, 3, 4, 5, 6, 9, 10, 11, 12, 13}, 6);
         marketMap[2].addRowToMap(new int[]{28, 29, 30, 28, 29, 20, 20, 30}, new int[]{3, 4, 5, 9, 10, 11, 12, 13}, 7);
 
+        signTileSet = new TileSet("sign.png", 32, 32, 1, 1);
+        marketMap[3] = new TileMap(1, signTileSet);
+        marketMap[3].addTileToMap(0, 7, 11);
+
 
         homeRenderingLayers = 5;
         // 0 - All walls except top, floor
         // 1 - Back decor, top of walls
         // 2 - Front decor
-        // Player renders here
+        // Player renders here (4)
         // 3 - Fronter decor
         homeTileSet = new TileSet("indoorTileset.png", 32, 32, 4, 5);
 

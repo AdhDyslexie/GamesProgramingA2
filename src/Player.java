@@ -79,6 +79,8 @@ public class Player {
         animframe = 0;
         delay = 0;
         pickupSound = GameEngine.loadAudio("ItemPickupSound.wav");
+
+        winmode = 0;
     }
 
     // Called in Main's update function every frame.
