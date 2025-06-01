@@ -209,7 +209,6 @@ public class Main extends GameEngine{
         Point b = a.getLocation();
         double my = b.getY()-l;
         double mx = b.getX() - 210;
-        System.out.println(my);
         for (int xCheck = 70 + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()), i = 0;
              i < player.inventory.maxSize();
              xCheck += (map.MarketMap()[0].TileWidth() + player.inventory.renderingBufferSize()) * player.inventory.SizeMultiplier(), i++) {
