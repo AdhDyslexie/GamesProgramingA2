@@ -3,6 +3,9 @@ import java.awt.event.*;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.awt.Image;
+import java.awt.MouseInfo;
+import java.awt.PointerInfo;
+import java.awt.Point;
 
 public class Main extends GameEngine{
 
@@ -177,7 +180,6 @@ public class Main extends GameEngine{
 
     public void drawInventory(int x, int y) {
         saveCurrentTransform();
-
         // Inventory background
         changeColor(white);
         translate(x, y);
@@ -205,8 +207,49 @@ public class Main extends GameEngine{
                 }
             }
         }
-
+        if (player.menuOpen == player.menuOpen.INVENTORY) {
+            hover(0);
+        } else {
+            hover(150);
+        }
         restoreLastTransform();
+    }
+    public void hover (int l) {
+        PointerInfo a = MouseInfo.getPointerInfo();
+        Point b = a.getLocation();
+        double my = b.getY()-l;
+        double mx = b.getX() - 210;
+        for (int xCheck = 70 + (player.inventory.renderingBufferSize() * player.inventory.SizeMultiplier()), i = 0;
+             i < player.inventory.maxSize();
+             xCheck += (map.MarketMap()[0].TileWidth() + player.inventory.renderingBufferSize()) * player.inventory.SizeMultiplier(), i++) {
+            if(!(player.tradingMenu.SlotTakenItemIndex() == i)) {
+                if (mx > xCheck && mx < xCheck + map.MarketMap()[0].TileWidth() * player.inventory.SizeMultiplier()) {
+                    // This item was hovered
+                    if (my > 390 && my < 450) {
+                        if (player.inventory.getItemAtIndex(i) != null) {
+                            drawSolidRectangle(mx - 67, my - 482, 200, 100);
+                            changeColor(black);
+                            drawText(mx - 67, my - 462, "Name: " + player.inventory.getItemAtIndex(i).Name(), "Arial", 14);
+                            int lines = 0;
+                            if (player.inventory.getItemAtIndex(i).Description().length() < 40) {
+                                drawText(mx - 67, my - 442, "Desc: " + player.inventory.getItemAtIndex(i).Description(), "Arial", 10);
+                            } else {
+                                String[] arrayStr = player.inventory.getItemAtIndex(i).Description().split("]", 3);
+                                drawText(mx - 67, my - 442, "Desc: ", "Arial", 10);
+                                for (String s : arrayStr) {
+                                    drawText(mx - 37, my - 442 + (lines * 15), s, "Arial", 10);
+                                    lines++;
+                                }
+                                lines--;
+                            }
+                            drawText(mx - 67, my - 422 + (lines * 15), "Value: " + player.inventory.getItemAtIndex(i).Value(), "Arial", 14);
+                            changeColor(white);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void drawTradingMenu() {
